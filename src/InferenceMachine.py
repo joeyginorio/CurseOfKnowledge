@@ -16,7 +16,7 @@ class InferenceMachine():
 
 	"""
 
-	def evaluateExample(self, hypothesisSpace, example, trueHypothesis, 
+	def evaluateExample(self, hypothesisSpace, trueHypothesis, example, 
 						lambda_noise=.1, option=0):
 		"""
 			Returns value for an example V(e). Equivalent to the posterior belief of
@@ -37,14 +37,14 @@ class InferenceMachine():
 		trueHypothesisIndex = hypothesisSpace[0].index(trueHypothesis)
 		
 		# Run a hypothesis update on learner using the examples provided
-		hUpdater = HypothesisSpaceUpdater(hypothesisSpace, example, trueHypothesis, 
+		hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, example, 
 					lambda_noise, option)
 
 		# Calculate V(e) of example
 		return hUpdater.hypothesisSpacePosterior[trueHypothesisIndex]
 
 
-	def probabilityOfExample(self, hypothesisSpace, example, trueHypothesis,
+	def probabilityOfExample(self, hypothesisSpace, trueHypothesis, example,
 						lambda_noise=.1, option=0, tau=.1):
 		"""
 			Returns the probability of teaching an example.
@@ -74,8 +74,8 @@ class InferenceMachine():
 
 		# For each possible example, calculate its value, V(e)
 		for action in self.actionSpace:
-			actionDistribution.append(self.evaluateExample(hypothesisSpace, action, 
-				trueHypothesis, lambda_noise, option))
+			actionDistribution.append(self.evaluateExample(hypothesisSpace, trueHypothesis, 
+				action, lambda_noise, option))
 
 
 		# Turn the list of values into a distribution through softmax

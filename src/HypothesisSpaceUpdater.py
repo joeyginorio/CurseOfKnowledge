@@ -15,7 +15,7 @@ class HypothesisSpaceUpdater():
 
 	"""
 	
-	def __init__(self, hypothesisSpace, examples, trueHypothesis, lambda_noise=.2, option=0):
+	def __init__(self, hypothesisSpace, trueHypothesis, example, lambda_noise=.2, option=0):
 		"""	
 			Params:
 				hypothesisSpace - feed using GenerateHypothesisSpace
@@ -26,17 +26,17 @@ class HypothesisSpaceUpdater():
 		
 		# Saving inputs as class variables, helpful for debugging/interacting w/ model
 		self.hypothesisSpace = hypothesisSpace[0]
-		self.examples = examples
+		self.example = example
 		self.trueHypotheses = trueHypothesis
 		self.lambda_noise = lambda_noise
 		self.option = option
 
 		# Tag examples to see if they turn blicket detector on or off
-		examples = self.getOutcome(examples, trueHypothesis, lambda_noise)
+		example = self.getOutcome(example, trueHypothesis, lambda_noise)
 
 		# Nonrecursive update, calculating posterior, P(H|E)
 		if option == 0:
-			self.hypothesisSpacePosterior = self.hypothesisSpaceUpdater(hypothesisSpace, examples)
+			self.hypothesisSpacePosterior = self.hypothesisSpaceUpdater(hypothesisSpace, example)
 
 		# Recursive update, for future.....
 		else:
