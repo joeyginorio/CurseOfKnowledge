@@ -77,7 +77,7 @@ class GenerateHypothesisSpace():
 		hypothesisSpacePrior = list()
 
 		# Add the single-block hypotheses to hypothesis space
-		hypothesisSpace += self.unorderedArgs[0:len(self.blockList)]
+		hypothesisSpace += [[i] for i in self.unorderedArgs[0:len(self.blockList)]]
 
 		# Remove the single-block hypotheses from arguments
 		args = self.unorderedArgs[len(self.blockList):]
@@ -86,11 +86,12 @@ class GenerateHypothesisSpace():
 		for arg in args:
 			hypothesisSpace.append(self.Or(*arg))
 
-		# Calculate prior distribution of hypothesis space
-		hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
+		if uniform:
+			# Calculate prior distribution of hypothesis space
+			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
 
 
-		return hypothesisSpace, hypothesisSpacePrior
+		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
 
 	
 	def Or(self, *args):

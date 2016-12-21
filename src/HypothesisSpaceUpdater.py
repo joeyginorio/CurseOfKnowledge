@@ -5,17 +5,46 @@
 # -----------------------------------------------------------------------------
 
 
+
+from GenerateHypothesisSpace import GenerateHypothesisSpace
+
+
 class HypothesisSpaceUpdater():
 	"""
 		Class which holds non-recursive / recursive hypothesis space updater
 
 	"""
 	
-	# def __init__(self, trueHypothesis):
-		# pass
+	def __init__(self, hypothesisSpace, examples, trueHypothesis, lambda_noise=.2, option=0):
+		"""	
+			Params:
+				hypothesisSpace - feed using GenerateHypothesisSpace
+				trueHypothesis - the combination that lights blicket detector
+				option - 0 for nonrecursive, 1 for recursive
+
+		"""
+		
+		# Saving inputs as class variables, helpful for debugging/interacting w/ model
+		self.hypothesisSpace = hypothesisSpace[0]
+		self.examples = examples
+		self.trueHypotheses = trueHypothesis
+		self.lambda_noise = lambda_noise
+		self.option = option
+
+		# Tag examples to see if they turn blicket detector on or off
+		examples = self.getOutcome(examples, trueHypothesis, lambda_noise)
+
+		# Nonrecursive update, calculating posterior, P(H|E)
+		if option == 0:
+			self.hypothesisSpacePosterior = self.hypothesisSpaceUpdater(hypothesisSpace, examples)
+
+		# Recursive update, for future.....
+		else:
+			pass
+		
 
 
-	def hypothesisSpaceUpdater(self, hypothesisSpace, examples):
+	def hypothesisSpaceUpdater(self, hypothesisSpace, example):
 		"""
 			Returns posterior distribution of learner's hypothesis space
 			after being shown examples.  
@@ -44,100 +73,75 @@ class HypothesisSpaceUpdater():
 		# Calculate likelihood
 		hypothesisSpaceLikelihood = list()
 
-		for hypothesis in hypothesisSpace:
 
-			# Formats the hypothesis so it is easy to calculate likelihood
-			temp = hypothesis
-			hypothesis = list()
-			hypothesis.append(temp)
+		for hypothesis in hypothesisSpace:
 
 			# For each hypothesis, initialize a likelihood to 1
 			# to be multiplied by P(E|H) for all e in E
 			# e.g. P(E|H) = P(e_1|H)P(e_2|H)...P(H)
 			likelihood = 1
-			for example in examples:
-			
-				# If example is not relevant to hypothesis i.e. E independent of H
-				# P(H|E) = P(H), where P(E|H) is 1
-				# if example[0] not in hypothesis:
-				if type(hypothesis[0]) is list:
-					likelihood = example[1] if example[0] in hypothesis[0] else 1.0/len(examples)
 
-				
-					print "likelihood list"
-					print example[0], hypothesis, likelihood
-					print "-----------"
+			# for example in examples:
+			# 	if example[0].issubset(hypothesis):
+			# 		likelihood *= example[1]
+			# 	else:
+			# 		likelihood *= 1.0/len(examples)
+			if set(example[0]).issubset(hypothesis) or \
+				set([example[0]]).issubset(hypothesis):
 
-				elif type(hypothesis[0]) is str:
-					likelihood = example[1] if example[0] is hypothesis[0] else 1.0/len(examples)
-					# likelihood *= example[1]
-					print "likelihood str"
-					print example[0], hypothesis, likelihood
-					print '-----------'
+				likelihood *= example[1]
+
+			else:
+				likelihood *= 1.0/len(hypothesisSpace)
 
 			hypothesisSpaceLikelihood.append(likelihood)
 
-		return hypothesisSpaceLikelihood
+
+		# Save prior and likelihood as class variables
+		self.hypothesisSpacePrior = hypothesisSpacePrior
+		self.hypothesisSpaceLikelihood = hypothesisSpaceLikelihood
+
+		# Posterior = Likelihood * Prior
+		hypothesisSpacePosterior = [hypothesisSpacePrior[i]*hypothesisSpaceLikelihood[i] 
+										for i in range(len(hypothesisSpacePrior))]
+		
+		# Normalize Posterior
+		normalize = sum(hypothesisSpacePosterior)
+		hypothesisSpacePosterior = [i/normalize for i in hypothesisSpacePosterior]
+
+		return hypothesisSpacePosterior
 
 
-
-	# def exampleInHypothesis(self, example, hypothesis):
-	# 	"""
-	# 		Returns True or False, depending on whether the example is in 
-	# 		the space of the hypothesis: checks if the example is irrelevant 
-	# 		to the hypothesis. A helper function to hypothesisSpaceUpdater.
-
-	# 		Param:
-	# 			example - a tuple containing an example, and 0 or 1 tag
-	# 			hypothesis - e.g. A -> 'A' , Or(A,B) -> ['A','B']
-
-	# 	"""
-	# 	if type(hypothesis[0]) is list:
-	# 		likelihood = example[1] if example in hypothesis[0] else 1.0/len(examples)
-
-	# 	elif type(hypothesis[0]) is str:
-	# 		likelihood = example[1] if example is hypothesis[0] else 1.0/len(examples)
-
-
-
-
-
-
-	def getOutcome(self, examples, trueHypothesis, lambda_noise = 0.0):
+	def getOutcome(self, example, trueHypothesis, lambda_noise = 0.2):
 		"""
 			Returns the examples, tagged with whether they would turn the blicket
 			detector on or off. Used as a helper function for the updaters.
 
 			Params:
-				examples - a list of block examples e.g. ['A','B','C',['A','B']]
+				examples - a list of block examples e.g. ['A','B','C',['A','B'],['AB']]
+				trueHypothesis - the combination that turns on the blicket detector e.g. ['AB']
+				lambda_noise - adjusts degree of mistrust the learner has in the teacher
 
 		"""
 
-		# Formats the trueHypothesis so it is easy to check which
-		# examples turn it on.
-		trueHypothesis = [trueHypothesis,]
+		# Converts each example to a set
+		# examples = [set(example) for example in examples]
 
-		# Go through examples, see which ones turn on blicket detector
-		for i in range(len(examples)):
+		# Converts trueHypothesis to a setf
+		trueHypothesis = set(trueHypothesis)
 
-			if type(trueHypothesis[0]) is list:
-				examples[i] = (examples[i],1-lambda_noise) if examples[i] in trueHypothesis \
-								else (examples[i],lambda_noise)
-
-
-			elif type(trueHypothesis[0]) is str:
-				examples[i] = (examples[i],1-lambda_noise) if examples[i] is trueHypothesis[0] \
-								else (examples[i],lambda_noise)
-
-
-			# # If the example meets condition to turn on blicket, assign 1
-			# if examples[i] in trueHypothesis:
-			# 	examples[i] = (examples[i],1-lambda_noise)
+		# Checks if example is a subset of true hypothesis
+		# If so, the blicket turns on, tag with 1-lambda
+		if set(example).issubset(trueHypothesis) or \
+			set([example]).issubset(trueHypothesis):
 			
-			# # Else, if example doesn't turn on blicket, assign 0
-			# else:
-			# 	examples[i] = (examples[i],lambda_noise)
+			example = (example, 1-lambda_noise)
+			
+		# If not, the blicket is off, tag with lambda
+		else:
+			example = (example, lambda_noise)
+
 
 		# Examples are now tagged to indicate if they turn the detector on/off
 		# e.g. ('A', 0) if trueHypothesis='B'
-		return examples
+		return example
