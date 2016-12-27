@@ -41,7 +41,7 @@ hypothesisSpace = H.unorderedAnd()
 
 # Determine amount of mistrust learner has in teacher. [0,1)
 # low values = high trust, high values = low trust
-lambda_noise = .1
+lambda_noise = .05
 
 # True Hypothesis
 # Or(A,B) -> ['A','B']
@@ -49,18 +49,19 @@ trueHypothesis = ['AB','BA']
 
 # Pick example
 # e.g. 'AB' means both A and B are on blicket detector
-example1 = ['A','B','AB']
+example1 = ['AB']
 example2 = 'B'
 example3 = 'ABCD'
 
+independent = True
 
 """Calculations"""
 # Initialize an instance of our InferenceMachine
 infer = InferenceMachine()
 
 # Print probability of teaching example given a hypothesisSpace and the trueHypothesis
-print infer.probabilityOfExample(hypothesisSpace, trueHypothesis, example1, lambda_noise=.05, tau=.01)
-
+print infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, example1, lambda_noise,
+																independent=False, tau=.1)
 
 
 

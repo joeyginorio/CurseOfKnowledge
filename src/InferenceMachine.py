@@ -4,6 +4,7 @@
 # Curse of Knowledge Project
 # -----------------------------------------------------------------------------
 
+import itertools
 import numpy as np
 from GenerateHypothesisSpace import GenerateHypothesisSpace
 from HypothesisSpaceUpdater import HypothesisSpaceUpdater
@@ -16,8 +17,8 @@ class InferenceMachine():
 
 	"""
 
-	def evaluateExample(self, hypothesisSpace, trueHypothesis, examples, independent=False,
-						lambda_noise=.1, option=0):
+	def evaluateExample(self, hypothesisSpace, trueHypothesis, examples, lambda_noise=.05,
+							independent=True, option=0):
 		"""
 			Returns value for an example V(e). Equivalent to the posterior belief of
 			the trueHypothesis for the learner.
@@ -37,14 +38,14 @@ class InferenceMachine():
 		trueHypothesisIndex = hypothesisSpace[0].index(trueHypothesis)
 		
 		# Run a hypothesis update on learner using the examples provided
-		hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, examples, independent,
-					lambda_noise, option)
+		hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, examples,
+					lambda_noise,independent, option)
 
 		# Calculate V(e) of example
 		return hUpdater.hSpacePosterior[trueHypothesisIndex]
 
-	def probabilityOfExample(self, hypothesisSpace, trueHypothesis, examples,
-						lambda_noise=.1, option=0, tau=.1):
+	def probabilityOfExamples(self, hypothesisSpace, trueHypothesis, examples, lambda_noise=.05,
+								 independent=True, option=0, tau=.1):
 		"""
 			Returns the probability of teaching an example.
 
@@ -61,12 +62,13 @@ class InferenceMachine():
 
 		# Saves actionSpace contained in hypothesisSpace from generator
 		self.actionSpace = hypothesisSpace[2]
+		self.actionSpace = list(itertools.permutations(self.actionSpace, len(examples)))
 
 		# Removes actionSpace from hypothesisSpace list
 		hypothesisSpace = hypothesisSpace[0:2]
 
 		# Saves example index, to look up probability later
-		exampleIndices = [self.actionSpace.index(example) for example in examples]
+		exampleIndex = self.actionSpace.index(tuple(examples))
 
 		# Initialize the probability distribution 
 		actionDistribution = list()
@@ -74,15 +76,14 @@ class InferenceMachine():
 		# For each possible example, calculate its value, V(e)
 		for action in self.actionSpace:
 			actionDistribution.append(self.evaluateExample(hypothesisSpace, trueHypothesis, 
-				[action], lambda_noise, option))
+				list(action), lambda_noise, independent, option))
 
 		# Turn the list of values into a distribution through softmax
 		self.actionDistribution = self.softMax(actionDistribution,tau)
 
 		# Returns probability of example being taught out of all possible examples
 		
-		return [self.actionDistribution[i] for i in exampleIndices]
-
+		return self.actionDistribution[exampleIndex]
 
 
 	def softMax(self, arg, tau):
@@ -94,15 +95,15 @@ class InferenceMachine():
 				tau - rationality paramater 
 
 		"""
-
 		# e^(i/tau) for each value in arg
-		arg = [np.exp(i/tau) for i in arg]
+		# arg = [np.exp(i/tau) for i in arg]
+		arg = np.array(arg)
+		arg = np.exp(arg/tau)
 
 		# compute sum to normalize
-		total = np.sum(arg)
+		arg /= arg.sum()
 		
-		return [i/total for i in arg]
-
+		return list(arg)
 
 
 
