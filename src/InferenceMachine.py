@@ -16,7 +16,7 @@ class InferenceMachine():
 
 	"""
 
-	def evaluateExample(self, hypothesisSpace, trueHypothesis, example, 
+	def evaluateExample(self, hypothesisSpace, trueHypothesis, examples, independent=False,
 						lambda_noise=.1, option=0):
 		"""
 			Returns value for an example V(e). Equivalent to the posterior belief of
@@ -24,7 +24,7 @@ class InferenceMachine():
 
 			Params:
 				hypothesisSpace - Fed from HypothesisSpaceGenerator()
-				examples - a list of teacher example e.g. ['A','B',['B','C']]
+				examples - a list of teacher examples e.g. ['A','B',['B','C']]
 				trueHypothesis - the combination that turns blicket detector on e.g. 'A'
 				hUpdater - instance of HypothesisSpaceUpdater class, calculates posterior 
 							belief of the learner.
@@ -37,14 +37,13 @@ class InferenceMachine():
 		trueHypothesisIndex = hypothesisSpace[0].index(trueHypothesis)
 		
 		# Run a hypothesis update on learner using the examples provided
-		hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, example, 
+		hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, examples, independent,
 					lambda_noise, option)
 
 		# Calculate V(e) of example
-		return hUpdater.hypothesisSpacePosterior[trueHypothesisIndex]
+		return hUpdater.hSpacePosterior[trueHypothesisIndex]
 
-
-	def probabilityOfExample(self, hypothesisSpace, trueHypothesis, example,
+	def probabilityOfExample(self, hypothesisSpace, trueHypothesis, examples,
 						lambda_noise=.1, option=0, tau=.1):
 		"""
 			Returns the probability of teaching an example.
@@ -57,7 +56,7 @@ class InferenceMachine():
 							belief of the learner.
 				lambda_noise - how much does learner mistrust teacher data 
 				option - chooses recursive/nonrecursive update
-
+				
 		"""
 
 		# Saves actionSpace contained in hypothesisSpace from generator
@@ -67,7 +66,7 @@ class InferenceMachine():
 		hypothesisSpace = hypothesisSpace[0:2]
 
 		# Saves example index, to look up probability later
-		exampleIndex = self.actionSpace.index(example)
+		exampleIndices = [self.actionSpace.index(example) for example in examples]
 
 		# Initialize the probability distribution 
 		actionDistribution = list()
@@ -75,14 +74,14 @@ class InferenceMachine():
 		# For each possible example, calculate its value, V(e)
 		for action in self.actionSpace:
 			actionDistribution.append(self.evaluateExample(hypothesisSpace, trueHypothesis, 
-				action, lambda_noise, option))
-
+				[action], lambda_noise, option))
 
 		# Turn the list of values into a distribution through softmax
 		self.actionDistribution = self.softMax(actionDistribution,tau)
 
 		# Returns probability of example being taught out of all possible examples
-		return self.actionDistribution[exampleIndex]
+		
+		return [self.actionDistribution[i] for i in exampleIndices]
 
 
 
