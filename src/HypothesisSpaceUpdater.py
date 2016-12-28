@@ -239,7 +239,7 @@ class HypothesisSpaceUpdater():
 					likelihood *= examples[j][1]
 
 				else:
-					likelihood *= 1.0/len(hypothesisSpace)
+					likelihood *= 1-examples[j][1]
 
 
 			hSpaceLikelihood.append(likelihood)
@@ -292,7 +292,7 @@ class HypothesisSpaceUpdater():
 					likelihood *= examples[j][1]
 
 				else:
-					likelihood *= 1.0/len(hypothesisSpace)
+					likelihood *= 1-examples[j][1]
 
 				# Get posterior
 				posterior = likelihood * prior

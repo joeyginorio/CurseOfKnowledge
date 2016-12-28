@@ -32,7 +32,7 @@ from GenerateHypothesisSpace import GenerateHypothesisSpace
 
 """ Input Specification """
 # Specify the blocks we will be using
-blockList = ['A','B','C','D']
+blockList = ['A','B','C','D','E']
 
 # Initialize H, so that it may call multiple hypothesisSpaceGenerators
 # e.g. H.unorderedOr() generates hypothesis space for unorederedOr
@@ -49,11 +49,9 @@ trueHypothesis = ['AB','BA']
 
 # Pick example
 # e.g. 'AB' means both A and B are on blicket detector
-example1 = ['AB']
-example2 = 'B'
+example1 = ['B','A','AB']
+example2 = 'B',
 example3 = 'ABCD'
-
-independent = True
 
 """Calculations"""
 # Initialize an instance of our InferenceMachine
@@ -61,7 +59,7 @@ infer = InferenceMachine()
 
 # Print probability of teaching example given a hypothesisSpace and the trueHypothesis
 print infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, example1, lambda_noise,
-																independent=False, tau=.1)
+													independent=True, option=1, tau=.1, types=True)
 
 
 

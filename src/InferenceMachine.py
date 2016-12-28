@@ -42,10 +42,44 @@ class InferenceMachine():
 					lambda_noise,independent, option)
 
 		# Calculate V(e) of example
-		return hUpdater.hSpacePosterior[trueHypothesisIndex]
+		return hUpdater.hSpacePosterior[trueHypothesisIndex], hUpdater.hSpacePosterior
+
+	
+
 
 	def probabilityOfExamples(self, hypothesisSpace, trueHypothesis, examples, lambda_noise=.05,
-								 independent=True, option=0, tau=.1):
+								 independent=True, option=0, tau=.1, types=False):
+		"""
+			Returns the probability of teaching an example.
+
+			Params:
+				hypothesisSpace - Fed from HypothesisSpaceGenerator()
+				examples - a list of teacher example e.g. ['A','B',['B','C']]
+				trueHypothesis - the combination that turns blicket detector on e.g. 'A'
+				hUpdater - instance of HypothesisSpaceUpdater class, calculates posterior 
+							belief of the learner.
+				lambda_noise - how much does learner mistrust teacher data 
+				option - chooses recursive/nonrecursive update
+				
+		"""
+
+		exampleProbs = list()
+
+
+		for i in range(len(examples)):
+
+			hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
+								lambda_noise, independent, option, tau, types)
+			exampleProbs.append((hyp,prob))
+			hypothesisSpace[1] = posterior
+
+
+		return exampleProbs
+
+
+
+	def probabilityOfExample(self, hypothesisSpace, trueHypothesis, examples, lambda_noise=.05,
+								 independent=True, option=0, tau=.1, types=False):
 		"""
 			Returns the probability of teaching an example.
 
@@ -72,18 +106,116 @@ class InferenceMachine():
 
 		# Initialize the probability distribution 
 		actionDistribution = list()
+		actionPosterior = list()
+		posteriorTemp = list()
 
 		# For each possible example, calculate its value, V(e)
 		for action in self.actionSpace:
-			actionDistribution.append(self.evaluateExample(hypothesisSpace, trueHypothesis, 
-				list(action), lambda_noise, independent, option))
+
+			actionVal, posterior = self.evaluateExample(hypothesisSpace, trueHypothesis, 
+				list(action), lambda_noise, independent, option)
+
+			actionDistribution.append(actionVal)
+			posteriorTemp.append(posterior)
 
 		# Turn the list of values into a distribution through softmax
+		# print actionDistribution
 		self.actionDistribution = self.softMax(actionDistribution,tau)
+		self.actionPosterior = posteriorTemp[exampleIndex]
 
 		# Returns probability of example being taught out of all possible examples
-		
-		return self.actionDistribution[exampleIndex]
+		if types == False:
+			return self.actionSpace[exampleIndex], self.actionDistribution[exampleIndex], \
+			self.actionPosterior
+		else:
+			return self.actionSpace[exampleIndex], \
+			self.addTypes(self.actionSpace, self.actionDistribution,self.actionDistribution[exampleIndex]),\
+			self.actionPosterior
+
+	
+	def bestExamples(self, hypothesisSpace, trueHypothesis, depth=5, lambda_noise=.05,
+								 independent=True, option=0, tau=.1, types=False):
+		"""
+			Returns the best sequences of examples.
+
+			Params:
+				hypothesisSpace - Fed from HypothesisSpaceGenerator()
+				examples - a list of teacher example e.g. ['A','B',['B','C']]
+				trueHypothesis - the combination that turns blicket detector on e.g. 'A'
+				hUpdater - instance of HypothesisSpaceUpdater class, calculates posterior 
+							belief of the learner.
+				lambda_noise - how much does learner mistrust teacher data 
+				option - chooses recursive/nonrecursive update
+				
+		"""
+
+		exampleList = list()
+
+
+
+		for i in range(depth):
+
+			example, prob, posterior = self.bestExample(hypothesisSpace, trueHypothesis,\
+								lambda_noise, independent, option, tau, types)
+			exampleList.append((example, prob))
+			hypothesisSpace[1] = posterior
+
+
+		return exampleList
+
+
+	def bestExample(self, hypothesisSpace, trueHypothesis, lambda_noise=.05,
+								 independent=True, option=0, tau=.1, types=False):
+		"""
+			Returns the best example to teach.
+
+			Params:
+				hypothesisSpace - Fed from HypothesisSpaceGenerator()
+				examples - a list of teacher example e.g. ['A','B',['B','C']]
+				trueHypothesis - the combination that turns blicket detector on e.g. 'A'
+				hUpdater - instance of HypothesisSpaceUpdater class, calculates posterior 
+							belief of the learner.
+				lambda_noise - how much does learner mistrust teacher data 
+				option - chooses recursive/nonrecursive update
+				
+		"""
+
+		# Saves actionSpace contained in hypothesisSpace from generator
+		self.actionSpace = hypothesisSpace[2]
+		self.actionSpace = list(itertools.permutations(self.actionSpace,1))
+
+
+		# Removes actionSpace from hypothesisSpace list
+		hypothesisSpace = hypothesisSpace[0:2]
+
+
+		# Initialize the probability distribution 
+		actionDistribution = list()
+		actionPosterior = list()
+		posteriorTemp = list()
+
+		# For each possible example, calculate its value, V(e)
+		for action in self.actionSpace:
+
+			actionVal, posterior = self.evaluateExample(hypothesisSpace, trueHypothesis, 
+				list(action), lambda_noise, independent, option)
+
+			actionDistribution.append(actionVal)
+			posteriorTemp.append(posterior)
+
+		# Turn the list of values into a distribution through softmax
+		# print actionDistribution
+		self.actionDistribution = self.softMax(actionDistribution,tau)
+		self.actionPosterior = posteriorTemp[np.argmax(self.actionDistribution)]
+
+		# Returns probability of example being taught out of all possible examples
+		if types == False:
+			return self.actionSpace[np.argmax(self.actionDistribution)], \
+			np.max(self.actionDistribution), self.actionPosterior
+		else:
+			temp = self.maxTypes(self.actionSpace, self.actionDistribution)
+			return temp[0], temp, self.actionPosterior
+
 
 
 	def softMax(self, arg, tau):
@@ -106,4 +238,25 @@ class InferenceMachine():
 		return list(arg)
 
 
+	def addTypes(self, space, distribution, val):
+		total = 0
+		names = list()
+		for i in range(len(distribution)):
+			if distribution[i] == val:
+				total += val
+				names.append(space[i])
 
+		return names, total
+
+	def maxTypes(self, space, distribution):
+
+		a = [self.addTypes(space, distribution,i) for i in distribution]
+
+		maxProb = 0
+		maxNames = list()
+		for i in range(len(a)):
+			if a[i][1] > maxProb:
+				maxProb = a[i][1]
+				maxNames = a[i][0]
+
+		return maxNames, maxProb

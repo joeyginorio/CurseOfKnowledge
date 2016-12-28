@@ -91,7 +91,7 @@ class GenerateHypothesisSpace():
 			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
 
 
-		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
 
 	def unorderedAnd(self, uniform=True):
@@ -123,8 +123,24 @@ class GenerateHypothesisSpace():
 			# Calculate prior distribution of hypothesis space
 			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
 
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
-		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
+	def unorderedAndOr(self, uniform=True):
+
+		hypothesisSpace = list()
+		hypothesisSpacePrior = list()
+
+		a = self.unorderedOr()[0]
+		b = self.unorderedAnd()[0]
+
+		a += b[len(self.blockList):]
+		hypothesisSpace = a
+
+		if uniform:
+			hypothesisSpacePrior = [1.0/len(a) for i in a]
+
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
+
 
 	
 	def Or(self, *args):
