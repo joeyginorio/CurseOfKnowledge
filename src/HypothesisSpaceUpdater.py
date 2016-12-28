@@ -239,7 +239,17 @@ class HypothesisSpaceUpdater():
 					likelihood *= examples[j][1]
 
 				else:
-					likelihood *= 1.0/len(hypothesisSpace)
+					# if the example is consistent with the current hypothesis the model is considering
+					# (i.e., accoridng to the current hypothesis, it should not and actually DOES NOT activate the machine)
+					# we assign it an intermediate likelihood = 1 - lambda_noise
+					if examples[j][1] == lambda_noise:
+						likelihood *= (1 - lambda_noise)
+
+					# if the example is NOT consistent with the current hypothesis being considered
+					# (i.e., according to current hypothesis, it activates the machine when it SHOULD NOT)
+					else:
+						likelihood *= lambda_noise
+					
 
 
 			hSpaceLikelihood.append(likelihood)
