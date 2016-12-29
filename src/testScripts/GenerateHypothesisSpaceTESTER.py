@@ -10,7 +10,7 @@ H = GenerateHypothesisSpace(blockList)
 #print(H.unorderedAnd()) # testing the complete function with unorderedAnd
 #print(H.unorderedOr()) # testing the complete function with unorderedOr
 #print(H.unorderedAndOr()) # testing the complete function with unorderedAndOr
-print(H.orderedAnd())
+#print(H.orderedAnd())
 #print(H.orderedAndOr())
 
 # Code to write to a csv instead:
