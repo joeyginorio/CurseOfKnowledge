@@ -244,7 +244,7 @@ class HypothesisSpaceUpdater():
 					# if it is inconsistent, we assign it the likelihood of lambda_noise
 					likelihood *= 1-examples[j][1]
 
-					
+
 
 
 			hSpaceLikelihood.append(likelihood)
@@ -300,6 +300,7 @@ class HypothesisSpaceUpdater():
 					# if the example is consistent with the current hypothesis (i.e., it should not and does not turn on the machine)
 					# we assign it the intermediate likelihood of 1 - lambda_noise
 					# if it is inconsistent, we assign it the likelihood of lambda_noise
+
 					likelihood *= 1-examples[j][1]
 
 				# Get posterior
