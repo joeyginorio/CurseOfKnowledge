@@ -59,7 +59,7 @@ class InferenceMachine():
 
 
 	def probabilityOfExamples(self, hypothesisSpace, trueHypothesis, examples, lambda_noise=.05,
-								 independent=True, option=0, tau=.1, types=False):
+								 independent=True, option=1, tau=.1, types=True):
 		"""
 			Returns the probability of teaching an example.
 
