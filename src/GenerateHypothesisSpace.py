@@ -90,8 +90,7 @@ class GenerateHypothesisSpace():
 			# Calculate prior distribution of hypothesis space
 			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
 
-
-		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
 
 	def unorderedAnd(self, uniform=True):
@@ -123,8 +122,7 @@ class GenerateHypothesisSpace():
 			# Calculate prior distribution of hypothesis space
 			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
 
-
-		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
 	
 	def unorderedAndOr(self, uniform = True):
@@ -155,14 +153,14 @@ class GenerateHypothesisSpace():
 
 		if uniform:
 			# Calculate prior distribution of hypothesis space
-			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
+			hypothesisSpacePrior = [1.0/len(hypothesisSpace) for i in hypothesisSpace]
 
 		
 		# hypothesisSpace = all possible And & Or hypotheses
 		# hypothesisSpacePrior = either uniform, or simplicity biased (tba)
 		# the last statement makes up the actionSpace, by taking all the combinations 
 		# we made in unorderedArgs and simply taking away all the spaces etc. 
-		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
 
 	def orderedAnd(self, uniform = True):
@@ -189,7 +187,7 @@ class GenerateHypothesisSpace():
 			# Calculate prior
 			hypothesisSpacePrior = [1.0/len(self.orderedArgs) for i in self.orderedArgs]
 
-		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
 
 	def orderedAndOr(self, uniform = True):
@@ -208,17 +206,19 @@ class GenerateHypothesisSpace():
 
 		# remove the single-block hypotheses from the list of arguments
 		args = self.orderedArgs[len(self.blockList):]
+		args2 = self.unorderedArgs[len(self.blockList):]
 
 		# use the args as arguments for the And() and Or() functions and add to hyopthesisSpace
 		for arg in args:
 			hypothesisSpace.append(self.And(*arg))
+		for arg in args2:
 			hypothesisSpace.append(self.Or(*arg))
 
 		if uniform:
 			# calculate prior
-			hypothesisSpacePrior = [1.0/len(self.orderedArgs) for i in self.orderedArgs]
+			hypothesisSpacePrior = [1.0/len(hypothesisSpace) for i in hypothesisSpace]
 
-		return hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
 	
 	def Or(self, *args):
@@ -249,35 +249,46 @@ class GenerateHypothesisSpace():
 		return temp
 
 
-	def And(self, *args):
+	# def And(self, *args):
 		
 
-		"""
-			Logical And, e.g. And('A','B') -> ['AB','BA']
-			Can handle 2 or more arguments.
+	# 	"""
+	# 		Logical And, e.g. And('A','B') -> ['AB','BA']
+	# 		Can handle 2 or more arguments.
 
-			Param:
-				*args - May accept any argument, but
-				for the model, block characters generally used.
+	# 		Param:
+	# 			*args - May accept any argument, but
+	# 			for the model, block characters generally used.
 
-		"""
+	# 	"""
 
-		args = list(args)
+	# 	args = list(args)
 
-		# Convert arguments to list if not already
-		for i in range(len(args)):
+	# 	# Convert arguments to list if not already
+	# 	for i in range(len(args)):
+ # 			if type(args[i]) is not list:
+ # 				args[i] = list([args[i]])
+
+ # 		# Initialize final list
+	# 	final = list()
+
+	# 	# Generate all permutations of arguments
+	# 	temp = list(itertools.permutations(args))
+
+	# 	# Compute all products within each permutation
+	# 	for arg in temp:
+	# 		final.append(list([''.join(s) for s in list(itertools.product(*arg))]))
+
+		
+	# 	return [''.join(i) for i in final]
+
+   	def And(self,*args):
+ 		
+ 		args = list(args)
+
+ 		for i in range(len(args)):
+ 		
  			if type(args[i]) is not list:
  				args[i] = list([args[i]])
 
- 		# Initialize final list
-		final = list()
-
-		# Generate all permutations of arguments
-		temp = list(itertools.permutations(args))
-
-		# Compute all products within each permutation
-		for arg in temp:
-			final.append(list([''.join(s) for s in list(itertools.product(*arg))]))
-
-		
-		return [''.join(i) for i in final]
+		return [''.join(s) for s in list(itertools.product(*args))]
