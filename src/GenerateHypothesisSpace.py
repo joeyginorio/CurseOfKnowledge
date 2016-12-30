@@ -216,7 +216,7 @@ class GenerateHypothesisSpace():
 
 		if uniform:
 			# calculate prior
-			hypothesisSpacePrior = [1.0/len(self.orderedArgs) for i in self.orderedArgs]
+			hypothesisSpacePrior = [1.0/len(hypothesisSpace) for i in hypothesisSpace]
 
 		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
