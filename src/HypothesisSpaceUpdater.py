@@ -256,6 +256,7 @@ class HypothesisSpaceUpdater():
 
 
 
+
 			hSpaceLikelihood.append(likelihood)
 
 
@@ -311,6 +312,7 @@ class HypothesisSpaceUpdater():
 					# if it is inconsistent, we assign it the likelihood of lambda_noise
 
 					likelihood *= 1 - self.taggedActions[self.examplesIndices[j]][self.thIndex][1]
+
 
 				# Get posterior
 				posterior = likelihood * prior
