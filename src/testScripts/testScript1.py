@@ -49,7 +49,7 @@ trueHypothesis = ['BE']
 
 # Pick example
 # e.g. 'AB' means both A and B are on blicket detector
-example1 = ['BE','AB','DE','ACDE']
+example1 = ['BE','AB','DE','ACDE','ABCDE']
 # example1 = ['ACDE','DE','AB','BE']
 example2 = 'B',
 example3 = 'ABCD'

@@ -197,7 +197,7 @@ class InferenceMachine():
 
 
 		# Removes actionSpace from hypothesisSpace list
-		hypothesisSpace = hypothesisSpace[0:2]
+		# hypothesisSpace = hypothesisSpace[0:2]
 
 
 		# Initialize the probability distribution 
