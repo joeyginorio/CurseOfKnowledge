@@ -16,14 +16,14 @@ class InferenceMachine():
 		specific example would be taught out of the space of all examples.
 
 	"""
-	def __init__(self, hypothesisSpace, trueHypothesis, examples):
+	def __init__(self, hypothesisSpace, trueHypothesis, examples, lambda_noise):
 
 		self.taggedActions = list()
 
 		for a in hypothesisSpace[2]:
 			temp = list()
 			for h in hypothesisSpace[0]:
-				temp.append((self.getOutcome([a], h)))
+				temp.append((self.getOutcome([a], h, lambda_noise)))
 			self.taggedActions.append(temp)
 
 
