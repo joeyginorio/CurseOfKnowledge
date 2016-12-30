@@ -37,7 +37,7 @@ blockList = ['A','B','C','D','E']
 # Initialize H, so that it may call multiple hypothesisSpaceGenerators
 # e.g. H.unorderedOr() generates hypothesis space for unorederedOr
 H = GenerateHypothesisSpace(blockList)
-hypothesisSpace = H.unorderedAnd()
+hypothesisSpace = H.orderedAndOr()
 
 # Determine amount of mistrust learner has in teacher. [0,1)
 # low values = high trust, high values = low trust
@@ -45,21 +45,21 @@ lambda_noise = .05
 
 # True Hypothesis
 # Or(A,B) -> ['A','B']
-trueHypothesis = ['AB','BA']
+trueHypothesis = ['AB']
 
 # Pick example
 # e.g. 'AB' means both A and B are on blicket detector
-example1 = ['B','A','AB']
+example1 = ['AB','A','B']
 example2 = 'B',
 example3 = 'ABCD'
 
 """Calculations"""
 # Initialize an instance of our InferenceMachine
-infer = InferenceMachine()
+infer = InferenceMachine(hypothesisSpace, trueHypothesis, example1)
 
 # Print probability of teaching example given a hypothesisSpace and the trueHypothesis
 print infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, example1, lambda_noise,
-													independent=True, option=1, tau=.1, types=True)
+													independent=False, option=1, tau=.1)
 
 
 

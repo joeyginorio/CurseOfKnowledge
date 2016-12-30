@@ -15,8 +15,8 @@ class HypothesisSpaceUpdater():
 
 	"""
 	
-	def __init__(self, hypothesisSpace, trueHypothesis, examples, lambda_noise=.05, 
-					independent=True, option=0):
+	def __init__(self, hypothesisSpace, trueHypothesis, examples, taggedActions, 
+					lambda_noise=.05, independent=True, option=0):
 		"""	
 			Params:
 				hypothesisSpace - feed using GenerateHypothesisSpace
@@ -27,7 +27,10 @@ class HypothesisSpaceUpdater():
 		
 		# Saving inputs as class variables, helpful for debugging/interacting w/ model
 		self.hypothesisSpace = hypothesisSpace[0]
+		self.actionSpace = hypothesisSpace[2]
+		self.taggedActions = taggedActions
 		self.examples = examples
+		self.examplesIndices = [self.actionSpace.index(e) for e in examples]
 		self.trueHypothesis = trueHypothesis
 		self.lambda_noise = lambda_noise
 		self.option = option
@@ -38,11 +41,11 @@ class HypothesisSpaceUpdater():
 
 		# Nonrecursive update, calculating posterior, P(H|E)
 		if option == 0:
-			self.hypothesisSpaceUpdater(hypothesisSpace, examples, independent)
+			self.hypothesisSpaceUpdater(hypothesisSpace[0:2], examples, independent)
 
 		# Recursive update, for future.....
 		else:
-			self.recursiveSpaceUpdater(hypothesisSpace, examples, independent)
+			self.recursiveSpaceUpdater(hypothesisSpace[0:2], examples, independent)
 	
 	def recursiveSpaceUpdater(self, hypothesisSpace, examples, independent=True):
 		"""
@@ -139,6 +142,11 @@ class HypothesisSpaceUpdater():
 			for j in range(len(examples)):
 
 				self.hypothesisSpaceUpdater(hSpace, examples, independent)
+				# print 'right before'
+				# print self.hSpacePosterior
+				# print len(self.hSpacePosterior)
+				# print len(hypothesisSpace)
+				# print hSpace
 				likelihood *= self.hSpacePosterior[i]
 
 			hSpaceLikelihood.append(likelihood)
@@ -235,11 +243,16 @@ class HypothesisSpaceUpdater():
 			for j in range(len(examples)):
 
 				# Check if any of the example space is a subset of hypothesis space
-				if any(set([e]).issubset(set(hypothesisSpace[i])) for e in self.exampleSpace[j]):
+				if self.taggedActions[self.examplesIndices[j]][i][2]:
 					likelihood *= examples[j][1]
 
 				else:
+					# if the example is consistent with the current hypothesis (i.e., it should not and does not turn on the machine)
+					# we assign it the intermediate likelihood of 1 - lambda_noise
+					# if it is inconsistent, we assign it the likelihood of lambda_noise
 					likelihood *= 1-examples[j][1]
+
+
 
 
 			hSpaceLikelihood.append(likelihood)
@@ -288,10 +301,14 @@ class HypothesisSpaceUpdater():
 			for j in range(len(examples)):
 
 				# Check if any of the example space is a subset of hypothesis space
-				if any(set([e]).issubset(set(hypothesisSpace[i])) for e in self.exampleSpace[j]):
+				if self.taggedActions[self.examplesIndices[j]][i][2]:
 					likelihood *= examples[j][1]
 
 				else:
+					# if the example is consistent with the current hypothesis (i.e., it should not and does not turn on the machine)
+					# we assign it the intermediate likelihood of 1 - lambda_noise
+					# if it is inconsistent, we assign it the likelihood of lambda_noise
+
 					likelihood *= 1-examples[j][1]
 
 				# Get posterior
@@ -364,6 +381,5 @@ class HypothesisSpaceUpdater():
 				exampleSpace.append(''.join(list(e)))
 
 		return exampleSpace
-
 
 
