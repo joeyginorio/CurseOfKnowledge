@@ -282,7 +282,7 @@ class GenerateHypothesisSpace():
 		
 	# 	return [''.join(i) for i in final]
 
-   	def And(self,*args):
+	def And(self,*args):
  		
  		args = list(args)
 
@@ -290,5 +290,4 @@ class GenerateHypothesisSpace():
  		
  			if type(args[i]) is not list:
  				args[i] = list([args[i]])
-
-		return [''.join(s) for s in list(itertools.product(*args))]
+ 		return [''.join(s) for s in list(itertools.product(*args))]

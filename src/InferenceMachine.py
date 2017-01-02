@@ -81,6 +81,7 @@ class InferenceMachine():
 
 			hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
 								lambda_noise, independent, option, tau, types)
+			print("hyp, prob", hyp, prob)
 			exampleProbs.append((hyp,prob))
 			hypothesisSpace[1] = posterior
 
@@ -114,6 +115,7 @@ class InferenceMachine():
 
 		# Saves example index, to look up probability later
 		exampleIndex = self.actionSpace.index(tuple(examples))
+		print('example index', exampleIndex)
 
 		# Initialize the probability distribution 
 		actionDistribution = list()
@@ -130,9 +132,11 @@ class InferenceMachine():
 			posteriorTemp.append(posterior)
 
 		# Turn the list of values into a distribution through softmax
-		# print actionDistribution
+		print('action Distribution', actionDistribution)
 		self.actionDistribution = self.softMax(actionDistribution,tau)
 		self.actionPosterior = posteriorTemp[exampleIndex]
+		print('softmaxed action Distribution', actionDistribution)
+		print('probability of example:', actionDistribution[exampleIndex])
 
 		# Returns probability of example being taught out of all possible examples
 		if types == False:

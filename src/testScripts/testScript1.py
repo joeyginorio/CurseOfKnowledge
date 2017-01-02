@@ -25,14 +25,17 @@
 import sys
 sys.path.append("..")
 
+import numpy as np
+
 # Import our inference machine, which handles all the inference
 from InferenceMachine import InferenceMachine
 from GenerateHypothesisSpace import GenerateHypothesisSpace
+from HypothesisSpaceUpdater import HypothesisSpaceUpdater
 
 
 """ Input Specification """
 # Specify the blocks we will be using
-blockList = ['A','B','C','D']
+blockList = ['A','B','C','D', 'E']
 
 # Initialize H, so that it may call multiple hypothesisSpaceGenerators
 # e.g. H.unorderedOr() generates hypothesis space for unorederedOr
@@ -45,23 +48,56 @@ lambda_noise = .05
 
 # True Hypothesis
 # Or(A,B) -> ['A','B']
-trueHypothesis = ['AB','BA']
+trueHypothesis = ['BE']
 
 # Pick example
 # e.g. 'AB' means both A and B are on blicket detector
-example1 = ['AB']
-example2 = 'B'
-example3 = 'ABCD'
 
-independent = True
+#examples = ['BE', 'B', 'E']
+#examples = ['BE']
+#examples = H.unorderedAnd()[2]
+examples = ['A']
+
 
 """Calculations"""
 # Initialize an instance of our InferenceMachine
-infer = InferenceMachine()
+infer = InferenceMachine(hypothesisSpace, trueHypothesis, examples, lambda_noise)
 
 # Print probability of teaching example given a hypothesisSpace and the trueHypothesis
-print infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, example1, lambda_noise,
-																independent=False, tau=.1)
+exampleProbs = (infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent=True, option=1, tau=.1, types=False))
+print(exampleProbs)
+#probs = [[i[1]] for i in exampleProbs] # to get the probabilities alone
+
+
+
+"""Now, how did we get those probabilities?"""
+
+# STEP ONE: calculate the posterior probability of the (th|Example) by running evaluateExample:
+
+#evaluateExample = infer.evaluateExample(hypothesisSpace, trueHypothesis, examples, lambda_noise = 0.05, independent = True, option = 1)
+# evaluateExample returns not only the values, but also the highst value. To get only the values:
+#evaluateExampleProb = evaluateExample[1]
+#exampleValue = evaluateExampleProb[1]
+
+# STEP TWO: compute the probability of the action
+
+# 2.1: figure out what the posterior of the TH is for every single action in the action space
+
+"""allExampleValues = infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise=.05,
+								 independent=True, option=1, tau=.1, types=False)"""
+#infer.actionDistribution
+
+
+# to get value of all actions (i.e., the posterior for BE given this example would be: )
+
+"""
+for i in H.unorderedAnd()[0]:
+	exampleList = list()
+	exampleList.append(infer.evaluateExample(hypothesisSpace, trueHypothesis, i, lambda_noise = 0.05, independent = True, option = 1))
+
+"""
+
+
 
 
 
