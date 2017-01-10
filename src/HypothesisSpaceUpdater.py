@@ -123,7 +123,6 @@ class HypothesisSpaceUpdater():
 
 	
 		"""
-
 		hSpace = hypothesisSpace[:]
 
 		hSpacePrior = hypothesisSpace[1]
@@ -143,19 +142,22 @@ class HypothesisSpaceUpdater():
 			for j in range(len(examples)):
 
 				self.hypothesisSpaceUpdater(hSpace, examples, independent)
-				# print 'right before'
-				# print self.hSpacePosterior
+				#print('right before')
+				#print(self.hSpacePosterior)
 				# print len(self.hSpacePosterior)
 				# print len(hypothesisSpace)
 				# print hSpace
 				likelihood *= self.hSpacePosterior[i]
+				#print('likelihood', likelihood)
 
 			hSpaceLikelihood.append(likelihood)
 
-
+		#print('likelihood', hSpaceLikelihood)
+		#print('prior', hSpacePrior)
 		hSpacePosterior = [hSpacePrior[i]*hSpaceLikelihood[i] for i in 
 									range(len(hSpacePrior))]
-		
+		#print('total posterior', hSpacePosterior)
+
 		# Normalize Posterior
 		normalize = sum(hSpacePosterior)
 		hSpacePosterior = [i/normalize for i in hSpacePosterior]
@@ -244,7 +246,13 @@ class HypothesisSpaceUpdater():
 			for j in range(len(examples)):
 
 				# Check if any of the example space is a subset of hypothesis space
+				# look inside self.taggedActions at the index of the example j in examples. 
+				# Inside of that, you will get the outcome of example [j] you should expect if every single hypothesis were true. 
+				# We want to see the outcome for hypothesisSpace [i], we we go to index of i
+				# Then, we want the 3rd element in that, so we go to index [2]. If that is True (i.e., machine is ON):
+
 				if self.taggedActions[self.examplesIndices[j]][i][2]:
+					# likelihood = 1*(the probability inside taggedActions at the index of the true hypothesis), for every hypothesis that is consistent with the outcome of the example
 					likelihood *= self.taggedActions[self.examplesIndices[j]][self.thIndex][1]
 
 				else:
@@ -252,7 +260,6 @@ class HypothesisSpaceUpdater():
 					# we assign it the intermediate likelihood of 1 - lambda_noise
 					# if it is inconsistent, we assign it the likelihood of lambda_noise
 					likelihood *= 1 - self.taggedActions[self.examplesIndices[j]][self.thIndex][1]
-
 
 
 
@@ -297,7 +304,7 @@ class HypothesisSpaceUpdater():
 			# 				P(H_1) = P(H), P(H2) = P(e_1|H_1), ....
 			likelihood = 1
 			prior = hSpacePrior[i]
-			hSpacePrior.append(prior)
+			#hSpacePrior.append(prior)
 			
 			# Iterate over all examples 
 			for j in range(len(examples)):
@@ -310,17 +317,24 @@ class HypothesisSpaceUpdater():
 					# if the example is consistent with the current hypothesis (i.e., it should not and does not turn on the machine)
 					# we assign it the intermediate likelihood of 1 - lambda_noise
 					# if it is inconsistent, we assign it the likelihood of lambda_noise
-
 					likelihood *= 1 - self.taggedActions[self.examplesIndices[j]][self.thIndex][1]
 
+				
 
 				# Get posterior
 				posterior = likelihood * prior
 				
 				# Posterior becomes new prior
 				prior = posterior
+
 		
 			hSpacePosterior.append(posterior)
+
+
+			# ROSIE ADDED THIS STEP
+			hSpaceLikelihood.append(likelihood)
+		#hSpacePrior.append(hSpacePosterior)
+			#print('hSpacePrior', hSpacePrior)
 
 		# Normalize Posterior
 		normalize = sum(hSpacePosterior)

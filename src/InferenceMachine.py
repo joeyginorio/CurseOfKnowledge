@@ -81,12 +81,12 @@ class InferenceMachine():
 
 			hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
 								lambda_noise, independent, option, tau, types)
-			print("hyp, prob", hyp, prob)
+			# print("hyp, prob", hyp, prob) # Rosie debugging
 			exampleProbs.append((hyp,prob))
 			hypothesisSpace[1] = posterior
 
 
-		return exampleProbs
+		return exampleProbs#, posterior
 
 
 
@@ -115,7 +115,7 @@ class InferenceMachine():
 
 		# Saves example index, to look up probability later
 		exampleIndex = self.actionSpace.index(tuple(examples))
-		print('example index', exampleIndex)
+		# print('example index', exampleIndex) # Rosie debugging
 
 		# Initialize the probability distribution 
 		actionDistribution = list()
@@ -123,20 +123,30 @@ class InferenceMachine():
 		posteriorTemp = list()
 
 		# For each possible example, calculate its value, V(e)
+		# actionVal = posterior of the TH, calculated for every possible action
+		# posterior = complete posterior space of every hypothesis, calculated for every possible action
 		for action in self.actionSpace:
 
 			actionVal, posterior = self.evaluateExample(hypothesisSpace, trueHypothesis, 
 				list(action), lambda_noise, independent, option)
 
+			# instead of actions, in actionDistribution we see the value (i.e., posterior of TH) for every single action
+			# e.g., where A should have gone we see p(TH|A); instead of B we see p(TH|B)
 			actionDistribution.append(actionVal)
+			# a list of lists. list[0] is the posterior for the entire hypothesis space given example A; list[1] is example B, etc.
 			posteriorTemp.append(posterior)
 
 		# Turn the list of values into a distribution through softmax
-		print('action Distribution', actionDistribution)
 		self.actionDistribution = self.softMax(actionDistribution,tau)
 		self.actionPosterior = posteriorTemp[exampleIndex]
-		print('softmaxed action Distribution', actionDistribution)
-		print('probability of example:', actionDistribution[exampleIndex])
+
+		""" 
+		# for Rosie debugging
+		print('action Distribution', actionDistribution)
+		print('posterior', posteriorTemp[exampleIndex])
+		print('softmaxed action Distribution', self.actionDistribution) #self.softMax(actionDistribution, .1))
+		print('probability of example:', self.actionDistribution[exampleIndex]) #self.softMax(actionDistribution, .1)[exampleIndex])
+		"""
 
 		# Returns probability of example being taught out of all possible examples
 		if types == False:
