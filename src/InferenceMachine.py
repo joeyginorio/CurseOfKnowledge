@@ -79,14 +79,14 @@ class InferenceMachine():
 
 		for i in range(len(examples)):
 
-			hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
+			hyp, prob, posterior, actual_posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
 								lambda_noise, independent, option, tau, types)
-			# print("hyp, prob", hyp, prob) # Rosie debugging
+			print("hyp, prob, posterior, actual posterior", hyp, prob, posterior, actual_posterior) # Rosie debugging
 			exampleProbs.append((hyp,prob))
 			hypothesisSpace[1] = posterior
 
 
-		return exampleProbs#, posterior
+		return exampleProbs, actual_posterior
 
 
 
@@ -137,8 +137,8 @@ class InferenceMachine():
 			posteriorTemp.append(posterior)
 
 		# Turn the list of values into a distribution through softmax
-		self.actionDistribution = self.softMax(actionDistribution,tau)
-		self.actionPosterior = posteriorTemp[exampleIndex]
+		self.actionDistribution = self.softMax(actionDistribution,tau) # final posterior distribution
+		self.actionPosterior = posteriorTemp[exampleIndex] # returning the the posterior that has NOT been softmaxed, which is NOT what we want
 
 		""" 
 		# for Rosie debugging
@@ -151,11 +151,11 @@ class InferenceMachine():
 		# Returns probability of example being taught out of all possible examples
 		if types == False:
 			return self.actionSpace[exampleIndex], self.actionDistribution[exampleIndex], \
-			self.actionPosterior
+			self.actionPosterior, self.actionDistribution
 		else:
 			return self.actionSpace[exampleIndex], \
 			self.addTypes(self.actionSpace, self.actionDistribution,self.actionDistribution[exampleIndex]),\
-			self.actionPosterior
+			self.actionPosterior, self.actionDistribution
 
 	
 	def bestExamples(self, hypothesisSpace, trueHypothesis, depth=5, lambda_noise=.05,
