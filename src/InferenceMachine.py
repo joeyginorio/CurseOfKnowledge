@@ -79,14 +79,14 @@ class InferenceMachine():
 
 		for i in range(len(examples)):
 
-			hyp, prob, posterior, actual_posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
+			hyp, prob, posterior, softmaxPosterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
 								lambda_noise, independent, option, tau, types)
-			print("hyp, prob, posterior, actual posterior", hyp, prob, posterior, actual_posterior) # Rosie debugging
+			#print("hyp, prob, posterior, softmaxPosterior", hyp, prob, posterior, softmaxPosterior) # Rosie debugging
 			exampleProbs.append((hyp,prob))
 			hypothesisSpace[1] = posterior
 
-
-		return exampleProbs, actual_posterior
+		#print('exampleProbs, actual_posterior', exampleProbs, actual_posterior)
+		return exampleProbs, posterior, softmaxPosterior
 
 
 
@@ -121,6 +121,8 @@ class InferenceMachine():
 		actionDistribution = list()
 		actionPosterior = list()
 		posteriorTemp = list()
+		totalPosterior = list()
+		#self.totalPosterior = list()
 
 		# For each possible example, calculate its value, V(e)
 		# actionVal = posterior of the TH, calculated for every possible action
@@ -135,10 +137,15 @@ class InferenceMachine():
 			actionDistribution.append(actionVal)
 			# a list of lists. list[0] is the posterior for the entire hypothesis space given example A; list[1] is example B, etc.
 			posteriorTemp.append(posterior)
+			totalPosterior = posterior
+
 
 		# Turn the list of values into a distribution through softmax
-		self.actionDistribution = self.softMax(actionDistribution,tau) # final posterior distribution
-		self.actionPosterior = posteriorTemp[exampleIndex] # returning the the posterior that has NOT been softmaxed, which is NOT what we want
+		self.actionDistribution = self.softMax(actionDistribution,tau) # posterior of TH for every action; NOT the posterior of each hypothesis given an example
+		self.actionPosterior = posteriorTemp[exampleIndex] # posterior of the TH given the example shown; this is normalized in hUpdater, but not sotfmaxed 
+		print('posterior before softmax', totalPosterior)
+		softmaxActionPosterior = self.softMax(totalPosterior, tau)
+
 
 		""" 
 		# for Rosie debugging
@@ -151,11 +158,11 @@ class InferenceMachine():
 		# Returns probability of example being taught out of all possible examples
 		if types == False:
 			return self.actionSpace[exampleIndex], self.actionDistribution[exampleIndex], \
-			self.actionPosterior, self.actionDistribution
+			self.actionPosterior, softmaxActionPosterior
 		else:
 			return self.actionSpace[exampleIndex], \
 			self.addTypes(self.actionSpace, self.actionDistribution,self.actionDistribution[exampleIndex]),\
-			self.actionPosterior, self.actionDistribution
+			self.actionPosterior, softmaxActionPosterior
 
 	
 	def bestExamples(self, hypothesisSpace, trueHypothesis, depth=5, lambda_noise=.05,

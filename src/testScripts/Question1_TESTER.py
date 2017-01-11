@@ -110,15 +110,17 @@ def posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examples, lambda_
 	hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, examples, taggedActions, 
 		lambda_noise, independent, option)
 
-	posterior = infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option, tau, types)[1]
-	return posterior #hUpdater.hSpacePosterior
+	print(infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option, tau, types))
+
+	#posterior = infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option, tau, types)[1]
+	#return posterior #hUpdater.hSpacePosterior
 
 
 
 hypothesisSpace = H.unorderedAnd()
-examples = ['BE', 'D'] #['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC']
+examples = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC']
 option = 0
-print(posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, ['BE', 'E'], lambda_noise, independent, option))
+print(posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option))
 
 # writes the results of posteriorGivenAllExamples to a csv file, for every set of teacher examples, hypothesis space, and recursion option
 
