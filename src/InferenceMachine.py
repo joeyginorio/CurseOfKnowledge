@@ -79,11 +79,16 @@ class InferenceMachine():
 
 		for i in range(len(examples)):
 
-			hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
-								lambda_noise, independent, option, tau, types)
-			exampleProbs.append((hyp,prob))
-			hypothesisSpace[1] = posterior
+			if independent:
+				hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
+									lambda_noise, independent, option, tau, types)
+				exampleProbs.append((hyp,prob))
 
+			else:
+				hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
+									lambda_noise, independent, option, tau, types)
+				exampleProbs.append((hyp,prob))
+				hypothesisSpace[1] = posterior
 
 		return exampleProbs
 
@@ -161,8 +166,6 @@ class InferenceMachine():
 		"""
 
 		exampleList = list()
-
-
 
 		for i in range(depth):
 
