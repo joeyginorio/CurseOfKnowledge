@@ -17,6 +17,33 @@ class GenerateHypothesisSpace():
 		self.unorderedArgs = self.unorderedArgs(self.blockList)
 		self.orderedArgs = self.orderedArgs(self.blockList)
 
+	def depthSampler(self, depth):
+		"""
+			Samples AND, OR hypotheses at several depths.
+
+		"""
+		x = lambda x: ''.join(x)	# Beautiful function to make hypotheses pretty
+	
+		hypotheses = []
+		args = []
+
+		for i in range(1,depth+1):
+			args = itertools.chain(args, itertools.imap(x,itertools.combinations('ABCDE',i)))
+
+		args = list(args)
+
+
+		y = lambda y: self.Or(*y)
+
+		for i in range(1, depth+1):
+			hypotheses = itertools.chain(hypotheses, itertools.imap(y, 
+											itertools.combinations(args,i)))
+		
+		hypotheses = list(hypotheses)
+		prior = list()
+		prior = [1.0/len(hypotheses) for i in hypotheses]
+
+		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
 
 	def unorderedArgs(self, blockList):
 		"""
