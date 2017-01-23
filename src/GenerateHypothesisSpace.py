@@ -17,7 +17,7 @@ class GenerateHypothesisSpace():
 		self.unorderedArgs = self.unorderedArgs(self.blockList)
 		self.orderedArgs = self.orderedArgs(self.blockList)
 
-	def depthSampler(self, depth):
+	def depthSampler(self, depth,uniform=True):
 		"""
 			Samples AND, OR hypotheses at several depths.
 
@@ -40,10 +40,27 @@ class GenerateHypothesisSpace():
 											itertools.combinations(args,i)))
 		
 		hypotheses = list(hypotheses)
-		prior = list()
-		prior = [1.0/len(hypotheses) for i in hypotheses]
+		if uniform:
+			prior = list()
+			prior = [1.0/len(hypotheses) for i in hypotheses]
+
+		else:
+			prior = list()
+			for h in hypotheses:
+				prior.append(1.0/self.priorHelp(h))
+			normal = sum(prior)
+			prior = [i/normal for i in prior]
+
+			
 
 		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
+
+	def priorHelp(self, hypothesis):
+		total = 0
+		for h in hypothesis:
+			total += len(h)
+
+		return total
 
 	def unorderedArgs(self, blockList):
 		"""
