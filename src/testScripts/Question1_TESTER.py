@@ -1,9 +1,3 @@
-"""
-
-[description]
-
-
-"""
 import csv
 import sys
 sys.path.append("..")
@@ -13,7 +7,7 @@ from HypothesisSpaceUpdater import HypothesisSpaceUpdater
 from InferenceMachine import InferenceMachine
 
 ###First we need to import the teacher examples from our CSV in a helpful format###
-"""
+
 
 
 reader = csv.reader(open('tester.csv', newline = ''), delimiter = ',')
@@ -24,158 +18,97 @@ for row in reader:
 		if i != '':
 			rowTemp.append(i)
 	inputList.append(rowTemp)
-"""
 
 
 blockList = ['A','B','C','D','E']
 H = GenerateHypothesisSpace(blockList)
+#hypothesisSpace = H.depthSampler(2)
 
 trueHypothesis = ['BE']
 lambda_noise = .05
-independent = True
-optionList = 0, 1
+independenceAssumptionList = True, False
+optionList = 0, 1 # 0 = non-recursive, 1 = recursive
 tau = .1
 types = False
-inputList = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC'], ['BE', 'ABE', 'A', 'ABDE'] # for debugging
-#examples = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC'] # for debugging
-labels= [['H.unorderedAnd()', 'H.unorderedAndOr()', 'H.orderedAnd()', 'H.orderedAndOr()'],['non-recursive', 'recursive']]
+#inputList = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC'], ['BE', 'ABE', 'A', 'ABDE'] # for debugging				
+labels = [['depth 2'],['non-recursive', 'recursive'], ['independent', 'dependent']]
+#labels = [['unorderedAnd', 'unorderedAndOr'],['non-recursive', 'recursive'], ['independent', 'dependent']]
 
 
 
 
+def teachProbANDposteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option, tau, types, teachProb):
 
-######## PART ONE #########
 
-# returns the learner posterior of the True Hypothesis after each of the teacher's examples
-
-def posteriorAfterEachExample(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option):
-	
-	# Initializing our InferenceMachine class
 	infer = InferenceMachine(hypothesisSpace, trueHypothesis, examples, lambda_noise)
-	taggedActions = infer.taggedActions
 
-	# Initializing our HypothesisSpaceUpdater class (so we can access its functions)
-	hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, examples, taggedActions, 
-		lambda_noise, independent, option)
-
-	trueHypothesisIndex = hypothesisSpace[0].index(trueHypothesis)
-
-	temp = list()
-
-	for i in examples:
-		exampleProbs = (infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, [i], lambda_noise, independent, option, tau, types))
-		temptemp = i, hypothesisSpace[1][trueHypothesisIndex]
-		temp.append(temptemp)
+	# will return the probability of teaching each example
+	if teachProb == 1:
+		return infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, 
+										independent, option, tau, types)[0]
 	
-	return temp
+	# will return the posterior after all examples are shown 
+	elif teachProb == 2:
+		return infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, 
+										independent, option, tau, types)[1]
+	
+	# will return the posterior belief in the TH after EACH example
+	elif teachProb == 3:
+		trueHypothesisIndex = hypothesisSpace[0].index(trueHypothesis)
+		temp = list()
+
+		for i in examples:
+			exampleProbs, posterior = infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, \
+																	[i], lambda_noise, independent, \
+																	option, tau, types)
+		
+			superTemp = i, posterior[trueHypothesisIndex]
+			temp.append(superTemp)
+	
+		return temp
 
 
-# Writes the results of the above function to a csv for every set of teacher examples, hypothesis space, and recursion option
 
-def posteriorWriter1(labels, trueHypothesis, inputList, lambda_noise, independent, optionList):
-	with open ('posteriorAfterEachExample.csv', 'w', newline = '') as myfile:
+#print(teachProbANDposteriorGivenAllExamples(hypothesisSpace, trueHypothesis, ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC'], lambda_noise, independent = False, option = 1, tau = .1, types = False, teachProb = 1))
+
+
+def printer(labels, trueHypothesis, inputList, lambda_noise, independent, optionList, tau, types, uniform, teachProb):
+	with open ('teachProb.csv', 'w', newline = '') as myfile:
 		writer = csv.writer(myfile, delimiter = ' ')
+
+		teachCounter = 1
+		
 		for examples in inputList:	
 			recursionCounter = 0
+
+			# for recursive & non-recursive
 			for option in optionList:
-				spaceCounter = 0
-				hypothesisSpaceList = [H.unorderedAnd(), H.unorderedAndOr(), H.orderedAnd(), H.orderedAndOr()]
-				for hypothesis in hypothesisSpaceList:
-					temp = [labels[0][spaceCounter], labels[1][recursionCounter]]
-					temp.append(posteriorAfterEachExample(hypothesis, trueHypothesis, examples, lambda_noise, independent, option))
-					writer.writerow(temp)
-					#print(temp)
-					spaceCounter = spaceCounter + 1
+				independenceCounter = 0
+
+				# for independent & dependent
+				for independenceAssumption in independenceAssumptionList:
+					spaceCounter = 0
+					#hypothesisSpaceList = [H.unorderedAnd(), H.unorderedAndOr()]
+					hypothesisSpaceList = [H.depthSampler(2, uniform)]
+
+					# for each of our hypothesis spaces (currently only 1)
+					for hypothesis in hypothesisSpaceList:
+
+						temp = ['Teacher {}'.format(teachCounter), labels[0][spaceCounter], \
+								labels[1][recursionCounter], labels[2][independenceCounter], teachProbANDposteriorGivenAllExamples(hypothesis, trueHypothesis, \
+								examples, lambda_noise, independenceAssumption, option, tau, types, teachProb)]
+
+						#print(temp)
+						writer.writerow(temp)
+
+						spaceCounter = spaceCounter + 1
+					independenceCounter = independenceCounter + 1
 				recursionCounter = recursionCounter + 1
+			teachCounter = teachCounter + 1
 
 
+printer(labels, trueHypothesis, inputList, lambda_noise, \
+	independenceAssumptionList, optionList, tau, types, uniform = False, teachProb = 1)
 
-#posteriorWriter1(labels, trueHypothesis, inputList, lambda_noise, independent, optionList)
-
-
-
-
-
-######## PART TWO #########
-
-# uses HypothesisSpaceUpdater to retrieve the posterior distribution for all hypotheses given every single teacher example
-# (without updating the inferred learner posterior after each example)
-
-def posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option):
-	# Initializing our InferenceMachine class
-	infer = InferenceMachine(hypothesisSpace, trueHypothesis, examples, lambda_noise)
-	taggedActions = infer.taggedActions
-
-	# Initializing our HypothesisSpaceUpdater class (so we can access its functions)
-	hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, examples, taggedActions, 
-		lambda_noise, independent, option)
-
-	print(infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option, tau, types))
-
-	#posterior = infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option, tau, types)[1]
-	#return posterior #hUpdater.hSpacePosterior
-
-
-
-hypothesisSpace = H.unorderedAnd()
-examples = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC']
-option = 0
-print(posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option))
-
-# writes the results of posteriorGivenAllExamples to a csv file, for every set of teacher examples, hypothesis space, and recursion option
-
-def posteriorWriter2(labels, trueHypothesis, inputList, lambda_noise, independent, optionList):
-	with open ('overallPosterior.csv', 'w', newline = '') as myfile:
-		writer = csv.writer(myfile, delimiter = ' ')
-		for examples in inputList:	
-			recursionCounter = 0
-			for option in optionList:
-				spaceCounter = 0
-				hypothesisSpaceList = [H.unorderedAnd(), H.unorderedAndOr(), H.orderedAnd(), H.orderedAndOr()]
-				for hypothesisSpace in hypothesisSpaceList:
-					posterior = posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option)
-					trueHypothesisIndex = hypothesisSpace[0].index(trueHypothesis)
-					
-					#temp = [labels[0][spaceCounter], labels[1][recursionCounter], posterior[trueHypothesisIndex], list(zip(hypothesisSpace[0], posterior))]
-					print(labels[0][spaceCounter], labels[1][recursionCounter], posterior[trueHypothesisIndex], list(zip(hypothesisSpace[0], posterior)))
-					#writer.writerow(temp)
-					spaceCounter = spaceCounter + 1
-				recursionCounter = recursionCounter + 1
-
-
-#posteriorWriter2(labels, trueHypothesis, inputList, lambda_noise, independent, optionList)
-
-
-"""
-
-
-def sumPosteriorDifference(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option):
-	# Initializing our InferenceMachine class
-	infer = InferenceMachine(hypothesisSpace, trueHypothesis, examples, lambda_noise)
-	taggedActions = infer.taggedActions
-
-	# Initializing our HypothesisSpaceUpdater class (so we can access its functions)
-	hUpdater = HypothesisSpaceUpdater(hypothesisSpace, trueHypothesis, examples, taggedActions, 
-		lambda_noise, independent, option)
-
-	firstPosterior = posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, ['BE'], lambda_noise, independent, option)[3]
-	print('first posterior', firstPosterior)
-
-	differenceList = list()
-
-	# for every possible action, get the total 
-	for i in hypothesisSpace[2]:
-		posteriorOfI = posteriorGivenAllExamples(hypothesisSpace, trueHypothesis, i, lambda_noise, independent, option)
-		difference = [a - b for a, b in zip(firstPosterior, posteriorOfI)]
-		posteriorSum = sum(difference)
-		differenceList.append(posteriorSum)
-	return differenceList
-
-examples = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC']
-
-
-sumPosteriorDifference(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option)
-
-"""
 
 

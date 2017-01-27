@@ -62,7 +62,6 @@ class InferenceMachine():
 								 independent=True, option=1, tau=.1, types=True):
 		"""
 			Returns the probability of teaching an example.
-
 			Params:
 				hypothesisSpace - Fed from HypothesisSpaceGenerator()
 				examples - a list of teacher example e.g. ['A','B',['B','C']]
@@ -74,19 +73,29 @@ class InferenceMachine():
 				
 		"""
 
+
+
+		# Rosie note: for debugging self.rank, I added an argument called "actionDist" to hyp, prob & posterior
+		# This way I could also return "actionDist" and check that function rank was working properly
+
 		exampleProbs = list()
 
 
 		for i in range(len(examples)):
 
-			hyp, prob, posterior, softmaxPosterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
-								lambda_noise, independent, option, tau, types)
-			#print("hyp, prob, posterior, softmaxPosterior", hyp, prob, posterior, softmaxPosterior) # Rosie debugging
-			exampleProbs.append((hyp,prob))
-			hypothesisSpace[1] = posterior
+			if independent:
+				hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
+									lambda_noise, independent, option, tau, types)
+				exampleProbs.append((hyp,prob))
 
-		#print('exampleProbs, actual_posterior', exampleProbs, actual_posterior)
-		return exampleProbs, posterior, softmaxPosterior
+			else:
+				hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
+									lambda_noise, independent, option, tau, types)
+				exampleProbs.append((hyp,prob))
+				hypothesisSpace[1] = posterior
+
+		return exampleProbs, posterior 
+
 
 
 
@@ -121,7 +130,7 @@ class InferenceMachine():
 		actionDistribution = list()
 		actionPosterior = list()
 		posteriorTemp = list()
-		totalPosterior = list()
+		#totalPosterior = list()
 		#self.totalPosterior = list()
 
 		# For each possible example, calculate its value, V(e)
@@ -137,14 +146,13 @@ class InferenceMachine():
 			actionDistribution.append(actionVal)
 			# a list of lists. list[0] is the posterior for the entire hypothesis space given example A; list[1] is example B, etc.
 			posteriorTemp.append(posterior)
-			totalPosterior = posterior
+			#totalPosterior = posterior
 
 
 		# Turn the list of values into a distribution through softmax
 		self.actionDistribution = self.softMax(actionDistribution,tau) # posterior of TH for every action; NOT the posterior of each hypothesis given an example
-		self.actionPosterior = posteriorTemp[exampleIndex] # posterior of the TH given the example shown; this is normalized in hUpdater, but not sotfmaxed 
-		print('posterior before softmax', totalPosterior)
-		softmaxActionPosterior = self.softMax(totalPosterior, tau)
+		self.actionPosterior = posteriorTemp[exampleIndex] # posterior of the  entire hypothesis space given the example shown; this is normalized in hUpdater, but not sotfmaxed 
+		#print(totalPosterior)
 
 
 		""" 
@@ -158,11 +166,12 @@ class InferenceMachine():
 		# Returns probability of example being taught out of all possible examples
 		if types == False:
 			return self.actionSpace[exampleIndex], self.actionDistribution[exampleIndex], \
-			self.actionPosterior, softmaxActionPosterior
+			self.actionPosterior #, self.actionDistribution # last for Rosie debugging self.rank
 		else:
 			return self.actionSpace[exampleIndex], \
-			self.addTypes(self.actionSpace, self.actionDistribution,self.actionDistribution[exampleIndex]),\
-			self.actionPosterior, softmaxActionPosterior
+			[self.addTypes(self.actionSpace, self.actionDistribution,self.actionDistribution[exampleIndex]),\
+			self.rank(self.actionDistribution, self.actionDistribution[exampleIndex])],\
+			self.actionPosterior #, self.actionDistribution # last for Rosie debugging self.rank
 
 	
 	def bestExamples(self, hypothesisSpace, trueHypothesis, depth=5, lambda_noise=.05,
@@ -279,6 +288,19 @@ class InferenceMachine():
 				names.append(space[i])
 
 		return names, total
+
+	def rank(self, distribution, val):
+		sortedList = sorted(distribution, reverse = True)
+		#numbering = list(range(1,116,1)) # for debugging 
+		counter = 1
+		for i in sortedList:
+			if i == val:
+				break
+			else:
+				counter += 1
+		return counter #val, list(zip(sortedList, numbering)) # last 2 are for debugging
+
+
 
 	def maxTypes(self, space, distribution):
 

@@ -243,7 +243,7 @@ class HypothesisSpaceUpdater():
 			likelihood = 1
 
 			# Iterate over all examples
-			for j in range(len(examples)):
+			for j in range(len(examples)): # THIS WOULD BE THE FOR LOOP TO REPLACE TO PARALLELIZE
 
 				# Check if any of the example space is a subset of hypothesis space
 				# look inside self.taggedActions at the index of the example j in examples. 
@@ -266,7 +266,7 @@ class HypothesisSpaceUpdater():
 
 			hSpaceLikelihood.append(likelihood)
 
-
+			
 		hSpacePosterior = [hSpacePrior[i]*hSpaceLikelihood[i] for i in 
 									range(len(hSpacePrior))]
 		
@@ -274,7 +274,9 @@ class HypothesisSpaceUpdater():
 		normalize = sum(hSpacePosterior)
 		hSpacePosterior = [i/normalize for i in hSpacePosterior]
 
-
+		#print('posterior', hSpacePosterior)
+		#print('likelihood', hSpaceLikelihood)
+		#print('prior', hSpacePrior)
 		return hSpacePosterior, hSpaceLikelihood, hSpacePrior
 
 

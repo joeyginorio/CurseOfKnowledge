@@ -6,10 +6,11 @@
 
 import itertools
 
+
+
 class GenerateHypothesisSpace():
 	"""
 		Class which holds several hypothesis space generator functions. 
-
 	"""
 
 	def __init__(self, blockList):
@@ -17,12 +18,56 @@ class GenerateHypothesisSpace():
 		self.unorderedArgs = self.unorderedArgs(self.blockList)
 		self.orderedArgs = self.orderedArgs(self.blockList)
 
+	def depthSampler(self, depth, uniform):
+		"""
+			Samples AND, OR hypotheses at several depths.
+		"""
+		x = lambda x: ''.join(x)	# Beautiful function to make hypotheses pretty
+	
+		hypotheses = []
+		args = []
+
+		for i in range(1,depth+1):
+			args = itertools.chain(args, map(x,itertools.combinations('ABCDE',i)))
+
+		args = list(args)
+
+
+		y = lambda y: self.Or(*y)
+
+		for i in range(1, depth+1):
+			hypotheses = itertools.chain(hypotheses, map(y, 
+											itertools.combinations(args,i)))
+		
+
+		hypotheses = list(hypotheses)
+		if uniform:
+			prior = list()
+			prior = [1.0/len(hypotheses) for i in hypotheses]
+
+		else:
+			prior = list()
+			for h in hypotheses:
+				prior.append(1.0/self.priorHelp(h))
+			normal = sum(prior)
+			prior = [i/normal for i in prior]
+
+			
+
+		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
+
+	def priorHelp(self, hypothesis):
+		total = 0
+		for h in hypothesis:
+			total += len(h)
+
+		return total
+
 
 	def unorderedArgs(self, blockList):
 		"""
 			Generates a list of arguments for the unordered set of hypothesis
 			generators. Takes a blockList, and generates every combination.
-
 			Param: 
 				blockList - a list of characters
 				uniform - boolean, if true, will set prior to uniform distribution
@@ -44,7 +89,6 @@ class GenerateHypothesisSpace():
 		"""
 			Generates a list of arguments for the unordered set of hypothesis
 			generators. Takes a blockList, and generates every combination.
-
 			Param: 
 				blockList - a list of characters
 		"""
@@ -66,10 +110,8 @@ class GenerateHypothesisSpace():
 			Hypothesis Space #1:
 			Generates a list of hypotheses, including all combinations of
 			Or logic rules.
-
 			Param:
 				uniform - if true, prior for H is uniform, else t.b.d
-
 		"""
 
 		# Initializes hypothesis space and prior
@@ -98,10 +140,8 @@ class GenerateHypothesisSpace():
 			Hypothesis Space #1:
 			Generates a list of hypotheses, including all combinations of
 			And logic rules.
-
 			Param:
 				uniform - if true, prior for H is uniform, else t.b.d
-
 		"""
 
 		# Initializes hypothesis space and prior
@@ -130,7 +170,6 @@ class GenerateHypothesisSpace():
 			Hypothesis Space # 3:
 			Generates a list of hypotheses, including all combinations of
 			And and Or logic rules.
-
 			Param:
 				uniform - if ture, prior for H is uniform, else t.b.d.
 		"""
@@ -225,11 +264,9 @@ class GenerateHypothesisSpace():
 		"""
 			Logical Or, e.g. Or('A','B') = ['A','B']
 			Can handle 2 or more arguments
-
 			Param: 
 				*args - May accept any argument, but
 				for the model, block characters generally used
-
 		"""
 
 		# Our return list
@@ -283,11 +320,13 @@ class GenerateHypothesisSpace():
 	# 	return [''.join(i) for i in final]
 
 	def And(self,*args):
- 		
- 		args = list(args)
+   		args = list(args)
 
- 		for i in range(len(args)):
- 		
- 			if type(args[i]) is not list:
- 				args[i] = list([args[i]])
- 		return [''.join(s) for s in list(itertools.product(*args))]
+   		for i in range(len(args)):
+
+   			if type(args[i]) is not list:
+   				args[i] = list([args[i]])
+   		return [''.join(s) for s in list(itertools.product(*args))]
+
+
+
