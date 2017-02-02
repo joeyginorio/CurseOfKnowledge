@@ -40,7 +40,9 @@ blockList = ['A','B','C','D', 'E']
 # Initialize H, so that it may call multiple hypothesisSpaceGenerators
 # e.g. H.unorderedOr() generates hypothesis space for unorederedOr
 H = GenerateHypothesisSpace(blockList)
-hypothesisSpace = H.depthSampler(2, uniform = False)
+hypothesisSpace = H.simpleDepthSampler(2, uniform = False)
+#print(H.depthSampler(2, uniform = True))
+#print(H.simpleDepthSampler(5, uniform=True))
 #hypothesisSpace = H.unorderedAnd()
 
 

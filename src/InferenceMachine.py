@@ -287,7 +287,7 @@ class InferenceMachine():
 				total += val
 				names.append(space[i])
 
-		return names, total
+		return total #, names, 
 
 	def rank(self, distribution, val):
 		sortedList = sorted(distribution, reverse = True)

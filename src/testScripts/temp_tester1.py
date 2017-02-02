@@ -31,7 +31,7 @@ lambda_noise = .05
 independenceAssumptionList = True, False
 optionList = 0, 1 # 0 = non-recursive, 1 = recursive
 tau = .1
-types = True
+types = False
 uniformList = True, False
 #uniformOptions = True, False
 #inputList = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC'], ['BE', 'ABE', 'A', 'ABDE'] # for debugging				
@@ -82,29 +82,33 @@ def printer(labels, trueHypothesis, inputList, lambda_noise, independenceAssumpt
 		writer = csv.writer(myfile, delimiter = ' ')
 
 		teachCounter = 1
-		
+
+		hypothesisSpaceList = [H.depthSampler(2, uniform=True), H.depthSampler(2, uniform=False),\
+		H.unorderedAnd(uniform=True), H.unorderedAnd(uniform=False), \
+		H.simpleDepthSampler(2, uniform=True), H.simpleDepthSampler(2, uniform=False), \
+		H.simpleDepthSampler(3, uniform=True), H.simpleDepthSampler(3, uniform=False), \
+		H.simpleDepthSampler(4, uniform=True), H.simpleDepthSampler(4, uniform=False), \
+		H.simpleDepthSampler(5, uniform=True), H.simpleDepthSampler(5, uniform=False)]
+
+
+		# for every teaching sequence
 		for examples in inputList:	
-			recursionCounter = 0
+			spaceCounter = 0
 
-			# for recursive & non-recursive
-			for option in optionList:
-				uniformCounter = 0
-				
+			# for every hypothesis space
+			for hypothesis in hypothesisSpaceList:
+				recursionCounter = 0
 
-				# for uniform = True, uniform = False
-				for uniform in uniformList:
+				# for recursive & non-recursive
+				for option in optionList:
 					independenceCounter = 0
 
 					# for independent & dependent
 					for independenceAssumption in independenceAssumptionList:
-						spaceCounter = 0
-						#hypothesisSpaceList = [H.unorderedAnd(), H.unorderedAndOr()]
-						hypothesisSpaceList = [H.depthSampler(2, uniform), H.unorderedAnd(uniform), \
-							H.simpleDepthSampler(2, uniform), H.simpleDepthSampler(3, uniform), \
-							H.simpleDepthSampler(4, uniform), H.simpleDepthSampler(5, uniform)]
+						uniformCounter = 0
 
-						# for each of our hypothesis spaces (currently only 1)
-						for hypothesis in hypothesisSpaceList:
+						# for uniform = True, uniform = False
+						for uniform in uniformList:
 
 							temp = ['Teacher{}'.format(teachCounter), labels[0][spaceCounter], \
 									labels[1][recursionCounter], labels[2][independenceCounter], labels[3][uniformCounter], \
@@ -114,16 +118,16 @@ def printer(labels, trueHypothesis, inputList, lambda_noise, independenceAssumpt
 							#print(temp)
 							writer.writerow(temp)
 
-							spaceCounter = spaceCounter + 1
 						
-						independenceCounter = independenceCounter + 1
-					uniformCounter += 1
-				recursionCounter = recursionCounter + 1
-			teachCounter = teachCounter + 1
+							
+							uniformCounter += 1
+						independenceCounter += 1
+					recursionCounter += 1 
+				spaceCounter += 1
+			teachCounter += 1
 
 
 printer(labels, trueHypothesis, inputList, lambda_noise, \
 	independenceAssumptionList, optionList, tau, types, uniformList, teachProb = 1)
-
 
 

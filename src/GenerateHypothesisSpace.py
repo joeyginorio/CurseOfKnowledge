@@ -56,6 +56,49 @@ class GenerateHypothesisSpace():
 
 		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
 
+
+
+	def simpleDepthSampler(self, depth, uniform):
+		"""
+			Samples AND, OR hypotheses at several depths.
+		"""
+		x = lambda x: ''.join(x)	# Beautiful function to make hypotheses pretty
+		
+		hypotheses = []
+		args = []
+
+		for i in range(1,depth+1):
+			args = itertools.chain(args, map(x,itertools.combinations('ABCDE',i)))
+
+		args = [[i] for i in args]
+		
+		args = list(args)
+
+
+		y = lambda y: self.Or(*y)
+
+		for i in range(1, depth+1):
+			hypotheses = itertools.chain(hypotheses, map(y, 
+												itertools.combinations('ABCDE',i)))
+
+		hypotheses = args + list(hypotheses)
+
+		if uniform:
+			prior = list()
+			prior = [1.0/len(hypotheses) for i in hypotheses]
+
+		else:
+			prior = list()
+			for h in hypotheses:
+				prior.append(1.0/self.priorHelp(h))
+			normal = sum(prior)
+			prior = [i/normal for i in prior]
+
+			
+
+		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
+
+
 	def priorHelp(self, hypothesis):
 		total = 0
 		for h in hypothesis:
@@ -161,6 +204,11 @@ class GenerateHypothesisSpace():
 		if uniform:
 			# Calculate prior distribution of hypothesis space
 			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
+		else:
+			for h in hypothesisSpace:
+				hypothesisSpacePrior.append(1.0/self.priorHelp(h))
+				normal = sum(hypothesisSpacePrior)
+				hypothesisSpacePrior = [i/normal for i in hypothesisSpacePrior]
 
 		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
