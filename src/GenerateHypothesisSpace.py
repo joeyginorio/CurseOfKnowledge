@@ -17,6 +17,46 @@ class GenerateHypothesisSpace():
 		self.unorderedArgs = self.unorderedArgs(self.blockList)
 		self.orderedArgs = self.orderedArgs(self.blockList)
 
+	def simpleDepthSampler(self, depth, uniform):
+		"""
+			Samples AND, OR hypotheses at several depths.
+		"""
+		x = lambda x: ''.join(x)	# Beautiful function to make hypotheses pretty
+		
+		hypotheses = []
+		args = []
+
+		for i in range(1,depth+1):
+			args = itertools.chain(args, map(x,itertools.combinations('ABCDE',i)))
+
+		args = [[i] for i in args]
+		
+		args = list(args)
+
+
+		y = lambda y: self.Or(*y)
+
+		for i in range(1, depth+1):
+			hypotheses = itertools.chain(hypotheses, map(y, 
+												itertools.combinations('ABCDE',i)))
+
+		hypotheses = args + list(hypotheses)
+
+		if uniform:
+			prior = list()
+			prior = [1.0/len(hypotheses) for i in hypotheses]
+
+		else:
+			prior = list()
+			for h in hypotheses:
+				prior.append(1.0/self.priorHelp(h))
+			normal = sum(prior)
+			prior = [i/normal for i in prior]
+
+			
+
+		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
+
 	def depthSampler(self, depth,uniform=True):
 		"""
 			Samples AND, OR hypotheses at several depths.
@@ -49,7 +89,7 @@ class GenerateHypothesisSpace():
 			for h in hypotheses:
 				prior.append(1.0/self.priorHelp(h))
 			normal = sum(prior)
-			prior = [i/normal for i in prior]
+			prior = [i/(5+normal) for i in prior]
 
 			
 
@@ -157,6 +197,39 @@ class GenerateHypothesisSpace():
 
 		# Remove the single-block hypotheses from arguments
 		args = self.unorderedArgs[len(self.blockList):]
+
+		# Use args as arguments for Or(), add to hyp. space
+		for arg in args:
+			hypothesisSpace.append(self.And(*arg))
+
+		if uniform:
+			# Calculate prior distribution of hypothesis space
+			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
+
+		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
+
+
+	def unorderedAndDepth(self, depth, uniform=True):
+		"""
+			Hypothesis Space #1:
+			Generates a list of hypotheses, including all combinations of
+			And logic rules.
+
+			Param:
+				uniform - if true, prior for H is uniform, else t.b.d
+
+		"""
+
+		# Initializes hypothesis space and prior
+		hypothesisSpace = list()
+		hypothesisSpacePrior = list()
+
+		# Add the single-block hypotheses to hypothesis space
+		hypothesisSpace += [[i] for i in self.unorderedArgs[0:len(self.blockList)]]
+
+		# Remove the single-block hypotheses from arguments
+		args = self.unorderedArgs[len(self.blockList):]
+		args = [i for i in args if len(i) <= depth]
 
 		# Use args as arguments for Or(), add to hyp. space
 		for arg in args:
