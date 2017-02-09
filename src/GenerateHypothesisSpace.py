@@ -214,10 +214,8 @@ class GenerateHypothesisSpace():
 			Hypothesis Space #1:
 			Generates a list of hypotheses, including all combinations of
 			And logic rules.
-
 			Param:
 				uniform - if true, prior for H is uniform, else t.b.d
-
 		"""
 
 		# Initializes hypothesis space and prior
@@ -237,7 +235,13 @@ class GenerateHypothesisSpace():
 
 		if uniform:
 			# Calculate prior distribution of hypothesis space
-			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
+			hypothesisSpacePrior = [1.0/len(hypothesisSpace) for i in hypothesisSpace]
+
+		else:
+			for h in hypothesisSpace:
+				hypothesisSpacePrior.append(1.0/self.priorHelp(h))
+				normal = sum(hypothesisSpacePrior)
+				hypothesisSpacePrior = [i/normal for i in hypothesisSpacePrior]
 
 		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
 
