@@ -38,7 +38,7 @@ types = False
 uniformList = True, False
 #uniformOptions = True, False
 #inputList = ['BE', 'AB', 'DE', 'ABE', 'ABCDE', 'AC'], ['BE', 'ABE', 'A', 'ABDE'] # for debugging				
-labels = [['Complex_depth2', 'unorderedAnd', 'Simple_depth2', 'Simple_depth3', 'Simple_depth4', 'Simple_depth5'],\
+labels = [['embeddedAndOr_2', 'unembeddedAnd_2', 'unembeddedAnd_3', 'unembeddedAndOr_2', 'unembeddedAndOr_3'],\
 		['non-recursive', 'recursive'], ['independent', 'dependent'], ['uniform', 'simplicity']]
 #labels = [['unorderedAnd', 'unorderedAndOr'],['non-recursive', 'recursive'], ['independent', 'dependent']]
 
@@ -110,9 +110,9 @@ def printer(labels, trueHypothesis, inputList, lambda_noise, independenceAssumpt
 					for independenceAssumption in independenceAssumptionList:
 						spaceCounter = 0
 						#hypothesisSpaceList = [H.unorderedAnd(), H.unorderedAndOr()]
-						hypothesisSpaceList = [H.depthSampler(2, uniform), H.unorderedAnd(uniform), \
-							H.simpleDepthSampler(2, uniform), H.simpleDepthSampler(3, uniform), \
-							H.simpleDepthSampler(4, uniform), H.simpleDepthSampler(5, uniform)]
+						hypothesisSpaceList = [H.depthSampler(2, uniform), H.unorderedAndDepth(2, uniform), \
+							H.unorderedAndDepth(3, uniform), H.simpleDepthSampler(2, uniform), \
+							H.simpleDepthSampler(3, uniform)]
 
 						# for each of our hypothesis spaces (currently only 1)
 						for hypothesis in hypothesisSpaceList:

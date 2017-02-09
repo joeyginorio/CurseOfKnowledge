@@ -138,7 +138,7 @@ class InferenceMachine():
 		# posterior = complete posterior space of every hypothesis, calculated for every possible action
 		for action in self.actionSpace:
 
-			actionVal, posterior = self.evaluateExample(hypothesisSpace, trueHypothesis, 
+			actionVal, posterior = self.evaluateExample(hypothesisSpace, trueHypothesis, \
 				list(action), lambda_noise, independent, option)
 
 			# instead of actions, in actionDistribution we see the value (i.e., posterior of TH) for every single action
