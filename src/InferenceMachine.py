@@ -90,6 +90,8 @@ class InferenceMachine():
 				exampleProbs.append((hyp,prob))
 				hypothesisSpace[1] = posterior
 
+			hypothesisSpace[2].pop(hypothesisSpace[2].index(examples[i]))
+
 		return exampleProbs
 
 
