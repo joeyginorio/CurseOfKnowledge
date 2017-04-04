@@ -78,13 +78,15 @@ class InferenceMachine():
 			if independent:
 				hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
 									lambda_noise, independent, option, tau, types)
-				exampleProbs.append((hyp,prob))
+				exampleProbs.append((hyp,prob, posterior))
 
 			else:
 				hyp, prob, posterior = self.probabilityOfExample(hypothesisSpace, trueHypothesis, [examples[i]],
 									lambda_noise, independent, option, tau, types)
-				exampleProbs.append((hyp,prob))
+				exampleProbs.append((hyp, prob, posterior))
 				hypothesisSpace[1] = posterior
+
+			hypothesisSpace[2].pop(hypothesisSpace[2].index(examples[i]))
 
 		return exampleProbs
 

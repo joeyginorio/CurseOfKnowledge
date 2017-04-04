@@ -1,3 +1,7 @@
+# IMPORTANT:
+# This is the same as Question1_Tester EXCEPT here I list our 5 new hypothesis spaces
+
+
 import csv
 import sys
 sys.path.append("..")
@@ -9,12 +13,13 @@ from InferenceMachine import InferenceMachine
  
 
 # original data: CofKnowlv2.csv
+# v3 data: CofKnowlv3.csv
 
 ###First we need to import the teacher examples from our CSV in a helpful format###
 
 
 
-reader = csv.reader(open('CofKnowlv3.csv', newline = ''), delimiter = ',')
+reader = csv.reader(open('CofKnowlv3_above99removed.csv', newline = ''), delimiter = ',')
 inputList = list()
 for row in reader:
 	rowTemp = list()
@@ -42,7 +47,7 @@ labels = [['embeddedAndOr_2', 'unembeddedAnd_2', 'unembeddedAnd_3', 'unembeddedA
 		['non-recursive', 'recursive'], ['independent', 'dependent'], ['uniform', 'simplicity']]
 #labels = [['unorderedAnd', 'unorderedAndOr'],['non-recursive', 'recursive'], ['independent', 'dependent']]
 
-
+# 
 
 
 def teachProbANDposteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, independent, option, tau, types, teachProb, Sum):
@@ -53,7 +58,7 @@ def teachProbANDposteriorGivenAllExamples(hypothesisSpace, trueHypothesis, examp
 	# will return the probability of teaching each example
 	if teachProb == 1:
 		temp = infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, examples, lambda_noise, 
-										independent, option, tau, types)[0]
+										independent, option, tau, types)
 		if Sum and types == False:
 			tempTemp = [i[1] for i in temp]
 			tempTotal = sum(tempTemp)/len(tempTemp)
@@ -110,10 +115,11 @@ def printer(labels, trueHypothesis, inputList, lambda_noise, independenceAssumpt
 					for independenceAssumption in independenceAssumptionList:
 						spaceCounter = 0
 						#hypothesisSpaceList = [H.unorderedAnd(), H.unorderedAndOr()]
+						
 						hypothesisSpaceList = [H.depthSampler(2, uniform), H.unorderedAndDepth(2, uniform), \
 							H.unorderedAndDepth(3, uniform), H.simpleDepthSampler(2, uniform), \
 							H.simpleDepthSampler(3, uniform)]
-
+						
 						# for each of our hypothesis spaces (currently only 1)
 						for hypothesis in hypothesisSpaceList:
 
@@ -153,7 +159,7 @@ def printer(labels, trueHypothesis, inputList, lambda_noise, independenceAssumpt
 
 
 printer(labels, trueHypothesis, inputList, lambda_noise, \
-	independenceAssumptionList, optionList, tau, types, uniformList, teachProb = 1, Sum = False, plot = False)
+	independenceAssumptionList, optionList, tau, types, uniformList, teachProb = 1, Sum = True, plot = False)
 
 
 

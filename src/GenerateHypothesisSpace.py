@@ -214,6 +214,7 @@ class GenerateHypothesisSpace():
 
 
 
+
 	def unorderedAndDepth(self, depth, uniform=True):
 		"""
 			Hypothesis Space #1:
@@ -240,7 +241,7 @@ class GenerateHypothesisSpace():
 
 		if uniform:
 			# Calculate prior distribution of hypothesis space
-			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
+			hypothesisSpacePrior = [1.0/len(hypothesisSpace) for i in hypothesisSpace]
 
 		else:
 			for h in hypothesisSpace:
@@ -249,7 +250,6 @@ class GenerateHypothesisSpace():
 				hypothesisSpacePrior = [i/normal for i in hypothesisSpacePrior]
 
 		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
-
 
 	
 	def unorderedAndOr(self, uniform = True):
