@@ -25,7 +25,7 @@ from InferenceMachineRemoveDuplicates import InferenceMachine
 
 
 
-reader = csv.reader(open('v4 duplicates removed_unordered morph.csv', newline = ''), delimiter = ',')
+reader = csv.reader(open('CofKnowl v4 duplicates removed_unordered morph.csv', newline = ''), delimiter = ',')
 inputList = list()
 for row in reader:
 	rowTemp = list()
@@ -34,7 +34,7 @@ for row in reader:
 			rowTemp.append(i)
 	inputList.append(rowTemp)
 
-print(inputList)
+#print(inputList)
 
 
 blockList = ['A','B','C','D','E']
@@ -133,25 +133,35 @@ def printer(labels, trueHypothesis, inputList, lambda_noise, independenceAssumpt
 
 					# for each of our hypothesis spaces (currently only 1)
 					for hypothesis in hypothesisSpaceList:
-
+						counter = 1
 						# for plotting in ggplot2 - ignore otherwise!
 						if plot == True:
-							#print("examples", examples)
-							counter = 1
-							exampleList = list()
+							
+
 							alsoTemp = teachProbANDposteriorGivenAllExamples(hypothesis, trueHypothesis, \
 									examples, lambda_noise, independenceAssumption, option, tau, types, teachProb, Sum)
 
+							temp = [teachCounter, labels[2][independenceCounter],\
+										'{}_{}'.format(labels[0][spaceCounter], labels[1][recursionCounter]), \
+										't{}'.format(counter), alsoTemp[1]]
+
+
+							print(temp)
+							#writer.writerow(temp)
+
+
 
 							#print("alsotemp", alsoTemp)
+							"""
 							for i in alsoTemp:
+								#print(i)
 								temp = [teachCounter, labels[2][independenceCounter],\
 										'{}_{}'.format(labels[0][spaceCounter], labels[1][recursionCounter]), \
-										't{}'.format(counter), i[1]]
+										't{}'.format(counter), i]
 								counter += 1
-								print(temp)
+								#print(temp)
 								#writer.writerow(temp)
-									
+							"""		
 
 						else: 	
 							
