@@ -27,7 +27,6 @@ class InferenceMachine():
 			self.taggedActions.append(temp)
 
 
-
 	def evaluateExample(self, hypothesisSpace, trueHypothesis, examples, lambda_noise=.05,
 							independent=True, option=0):
 		"""

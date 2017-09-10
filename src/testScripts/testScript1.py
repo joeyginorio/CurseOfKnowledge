@@ -22,7 +22,7 @@
 
 """ Imports """
 # Allows us to import parent directory
-import sys
+import sysls
 sys.path.append("..")
 
 # Import our inference machine, which handles all the inference
@@ -38,7 +38,7 @@ blockList = ['A','B','C','D','E']
 # e.g. H.unorderedOr() generates hypothesis space for unorederedOr
 H = GenerateHypothesisSpace(blockList)
 hypothesisSpace = H.unorderedAndDepth(4,True)
-
+ls
 # Determine amount of mistrust learner has in teacher. [0,1)
 # low values = high trust, high values = low trust
 lambda_noise = .05
@@ -49,7 +49,7 @@ trueHypothesis = ['BE']
 
 # Pick example
 # e.g. 'AB' means both A ande B are on blicket detector
-example1 = ['BE','AB','DE','ABE','ABCDE']
+example1 = ['BE','AB','DE']
 # example1 = ['ACDE','DE','AB','BE']df
 example2 = 'B'
 example3 = 'ABCD'
@@ -61,3 +61,4 @@ infer = InferenceMachine(hypothesisSpace, trueHypothesis, example1, lambda_noise
 # Print probability of teaching example given a hypothesisSpace and the trueHypothesi
 print infer.probabilityOfExamples(hypothesisSpace, trueHypothesis, example1, lambda_noise,
 													independent=True, option=1, tau=.01,types=False)
+
