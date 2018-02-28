@@ -5,6 +5,7 @@
 # -----------------------------------------------------------------------------
 
 import itertools
+import numpy as np
 
 class GenerateHypothesisSpace():
 	"""
@@ -94,6 +95,42 @@ class GenerateHypothesisSpace():
 			
 
 		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
+
+	
+	"""
+		Same thing as depthSampler, except you first specify how many samples
+		you want from the hypothesis space depthSampler gives.
+	"""
+	def random_depth_sampler(self, samples, depth, uniform=True, th = ['BE']):
+
+		
+		temp = self.depthSampler(depth,uniform)
+		hyps = temp[0]
+		arg = temp[2]
+
+		if len(hyps) < samples:
+			print 'Desired sample size is larger than total hypothesis space, choose larger depth'
+			return None
+
+		final_hyps = list()
+		final_hyps.append(th)
+		
+		for i in range(samples-1):
+			ind = np.random.choice(len(hyps))
+			while hyps[ind] == th:
+				ind = np.random.choice(len(hyps))
+
+			temp = hyps.pop(ind)
+			final_hyps.append(temp)
+
+		if uniform:
+			prior = list()
+			prior = [1.0/len(final_hyps) for i in final_hyps]
+
+
+		return [final_hyps, prior, arg]
+
+
 
 	def priorHelp(self, hypothesis):
 		total = 0
