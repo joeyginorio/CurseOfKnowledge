@@ -127,6 +127,7 @@ class GenerateHypothesisSpace():
 			prior = list()
 			prior = [1.0/len(final_hyps) for i in final_hyps]
 
+		np.random.shuffle(final_hyps)
 
 		return [final_hyps, prior, arg]
 

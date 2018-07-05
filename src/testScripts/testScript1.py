@@ -22,7 +22,7 @@
 
 """ Imports """
 # Allows us to import parent directory
-import sysls
+import sys
 sys.path.append("..")
 
 # Import our inference machine, which handles all the inference
@@ -37,8 +37,8 @@ blockList = ['A','B','C','D','E']
 # Initialize H, so that it may call multiple hypothesisSpaceGenerators
 # e.g. H.unorderedOr() generates hypothesis space for unorederedOr
 H = GenerateHypothesisSpace(blockList)
-hypothesisSpace = H.unorderedAndDepth(4,True)
-ls
+hypothesisSpace = H.random_depth_sampler(10,2,True)
+
 # Determine amount of mistrust learner has in teacher. [0,1)
 # low values = high trust, high values = low trust
 lambda_noise = .05
