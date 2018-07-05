@@ -5,8 +5,7 @@
 # -----------------------------------------------------------------------------
 
 import itertools
-
-
+import numpy as np
 
 class GenerateHypothesisSpace():
 	"""
@@ -17,46 +16,6 @@ class GenerateHypothesisSpace():
 		self.blockList = blockList
 		self.unorderedArgs = self.unorderedArgs(self.blockList)
 		self.orderedArgs = self.orderedArgs(self.blockList)
-
-	def depthSampler(self, depth, uniform):
-		"""
-			Samples AND, OR hypotheses at several depths.
-		"""
-		x = lambda x: ''.join(x)	# Beautiful function to make hypotheses pretty
-	
-		hypotheses = []
-		args = []
-
-		for i in range(1,depth+1):
-			args = itertools.chain(args, map(x,itertools.combinations('ABCDE',i)))
-
-		args = list(args)
-
-
-		y = lambda y: self.Or(*y)
-
-		for i in range(1, depth+1):
-			hypotheses = itertools.chain(hypotheses, map(y, 
-											itertools.combinations(args,i)))
-		
-
-		hypotheses = list(hypotheses)
-		if uniform:
-			prior = list()
-			prior = [1.0/len(hypotheses) for i in hypotheses]
-
-		else:
-			prior = list()
-			for h in hypotheses:
-				prior.append(1.0/self.priorHelp(h))
-			normal = sum(prior)
-			prior = [i/normal for i in prior]
-
-			
-
-		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
-
-
 
 	def simpleDepthSampler(self, depth, uniform):
 		"""
@@ -98,6 +57,78 @@ class GenerateHypothesisSpace():
 
 		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
 
+	def depthSampler(self, depth,uniform=True):
+		"""
+			Samples AND, OR hypotheses at several depths.
+		"""
+		x = lambda x: ''.join(x)	# Beautiful function to make hypotheses pretty
+	
+		hypotheses = []
+		args = []
+
+		for i in range(1,depth+1):
+			args = itertools.chain(args, map(x,itertools.combinations('ABCDE',i)))
+
+		args = list(args)
+
+
+		y = lambda y: self.Or(*y)
+
+		for i in range(1, depth+1):
+			hypotheses = itertools.chain(hypotheses, map(y, 
+											itertools.combinations(args,i)))
+		
+		hypotheses = list(hypotheses)
+		if uniform:
+			prior = list()
+			prior = [1.0/len(hypotheses) for i in hypotheses]
+
+		else:
+			prior = list()
+			for h in hypotheses:
+				prior.append(1.0/self.priorHelp(h))
+			normal = sum(prior)
+			prior = [i/(5+normal) for i in prior]
+
+			
+
+		return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
+
+	
+	"""
+		Same thing as depthSampler, except you first specify how many samples
+		you want from the hypothesis space depthSampler gives.
+	"""
+	def random_depth_sampler(self, samples, depth, uniform=True, th = ['BE']):
+
+		
+		temp = self.depthSampler(depth,uniform)
+		hyps = temp[0]
+		arg = temp[2]
+
+		if len(hyps) < samples:
+			print('Desired sample size is larger than total hypothesis space, choose larger depth')
+			return None
+
+		final_hyps = list()
+		final_hyps.append(th)
+		
+		for i in range(samples-1):
+			ind = np.random.choice(len(hyps))
+			while hyps[ind] == th:
+				ind = np.random.choice(len(hyps))
+
+			temp = hyps.pop(ind)
+			final_hyps.append(temp)
+
+		if uniform:
+			prior = list()
+			prior = [1.0/len(final_hyps) for i in final_hyps]
+
+
+		return [final_hyps, prior, arg]
+
+
 
 	def priorHelp(self, hypothesis):
 		total = 0
@@ -105,7 +136,6 @@ class GenerateHypothesisSpace():
 			total += len(h)
 
 		return total
-
 
 	def unorderedArgs(self, blockList):
 		"""
@@ -204,15 +234,8 @@ class GenerateHypothesisSpace():
 		if uniform:
 			# Calculate prior distribution of hypothesis space
 			hypothesisSpacePrior = [1.0/len(self.unorderedArgs) for i in self.unorderedArgs]
-		else:
-			for h in hypothesisSpace:
-				hypothesisSpacePrior.append(1.0/self.priorHelp(h))
-				normal = sum(hypothesisSpacePrior)
-				hypothesisSpacePrior = [i/normal for i in hypothesisSpacePrior]
 
 		return [hypothesisSpace, hypothesisSpacePrior, [''.join(i) for i in self.unorderedArgs]]
-
-
 
 
 	def unorderedAndDepth(self, depth, uniform=True):
@@ -372,6 +395,18 @@ class GenerateHypothesisSpace():
 
 		return temp
 
+	def And(self,*args):
+ 		
+ 		args = list(args)
+
+ 		for i in range(len(args)):
+ 		
+ 			if type(args[i]) is not list:
+ 				args[i] = list([args[i]])
+ 		return [''.join(s) for s in list(itertools.product(*args))]
+
+
+
 
 	# def And(self, *args):
 		
@@ -405,15 +440,5 @@ class GenerateHypothesisSpace():
 
 		
 	# 	return [''.join(i) for i in final]
-
-	def And(self,*args):
-   		args = list(args)
-
-   		for i in range(len(args)):
-
-   			if type(args[i]) is not list:
-   				args[i] = list([args[i]])
-   		return [''.join(s) for s in list(itertools.product(*args))]
-
 
 

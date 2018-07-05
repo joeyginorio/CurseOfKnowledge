@@ -59,7 +59,7 @@ def generator(labels, hypothesisSpace, trueHypothesis, examples, lambda_noise, t
 
 	for i in myList:
 		finalList.append(i[1])
-		index.append([labels, 't{}'.format(counter)])
+		index.append([labels, counter])
 		counter += 1
 
 	return finalList, index
@@ -76,16 +76,16 @@ def compiler(trueHypothesis, inputList, lambda_noise, tau, types, uniform, optio
 
 	for examples in inputList:
 
-		hypothesisCopy1, hypothesisCopy2 = H.unorderedAndDepth(3, uniform), H.unorderedAndDepth(3, uniform)
+		#hypothesisCopy1, hypothesisCopy2 = H.simpleDepthSampler(2, uniform = True), H.simpleDepthSampler(2, uniform = True)
 
-		#hypothesisCopy1, hypothesisCopy2 = H.depthSampler(2, uniform), H.depthSampler(2, uniform)
+		hypothesisCopy1, hypothesisCopy2 = H.depthSampler(2, uniform), H.depthSampler(2, uniform)
 
 		# calculating the independent teachProb
-		independentLabels = [teachCounter, "independent", "simple_recursive"]
+		independentLabels = [teachCounter, "independent", "complex + recursive"]
 		tempIndep, tempIndepIndex = generator(independentLabels, hypothesisCopy1, trueHypothesis, examples, lambda_noise, tau, types, uniform, option, independent = True)
 
 		# calculating the dependent teachProb
-		dependentLabels = [teachCounter, "dependent", "simple_recursive"]
+		dependentLabels = [teachCounter, "dependent", "complex + recursive"]
 		tempDep, tempDepIndex = generator(dependentLabels, hypothesisCopy2, trueHypothesis, examples, lambda_noise, tau, types, uniform, option, independent = False)
 
 		# storing the index values:
@@ -185,11 +185,12 @@ def printer(trueHypothesis, inputList, lambda_noise, tau, types, uniform, option
 		#print(labelsAndRatio)
 
 		for i, j in zip(labelsAndRatio, finalRatio):
-			print(i, j)
-			#writer.writerow(zip(i, j))
+			#print(i, j)
+			writer.writerow(zip(i, j))
 
 		#print(indexList)
 
+printer(trueHypothesis, inputList, lambda_noise, tau, types, uniform, option)
 
 
 def compilerPrinter(trueHypothesis, inputList, lambda_noise, tau, types, uniform, option):
@@ -202,12 +203,13 @@ def compilerPrinter(trueHypothesis, inputList, lambda_noise, tau, types, uniform
 
 		for i in all:
 			print(i)
+			#writer.writerow(i)
 
 
 		
 
-compilerPrinter(trueHypothesis, inputList, lambda_noise, tau, types, uniform, option)
-#printer(trueHypothesis, inputList, lambda_noise, tau, types, uniform, option)
+#compilerPrinter(trueHypothesis, inputList, lambda_noise, tau, types, uniform, option)
+
 
 
 

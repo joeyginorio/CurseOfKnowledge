@@ -9,7 +9,7 @@
 import sys
 import csv
 sys.path.append("..")
-from InferenceMachineRemoveDuplicates import InferenceMachine
+from InferenceMachine import InferenceMachine
 from GenerateHypothesisSpace import GenerateHypothesisSpace
 from HypothesisSpaceUpdater import HypothesisSpaceUpdater
 from copy import deepcopy
@@ -20,9 +20,10 @@ from copy import deepcopy
 """
 # Read in the teacher data
 teacherData = list()
-# reader = csv.reader(open('CofKnowlv3_duplicatesRemoved.csv','rU'), delimiter=',',dialect=csv.excel_tab)
+reader = csv.reader(open('CofKnowlv3_duplicatesRemoved.csv','rU'), delimiter=',',dialect=csv.excel_tab)
 
-reader = csv.reader(open('Study1_TeacherReplication_DuplicatesRemoved.csv','rU'), delimiter=',',dialect=csv.excel_tab)
+#reader = csv.reader(open('Study1_TeacherReplication_DuplicatesRemoved.csv','rU'), delimiter=',',dialect=csv.excel_tab)
+
 
 # Creates 2D list of all teachers data
 for row in reader:
@@ -83,9 +84,9 @@ hSpacesNames.append('unembeddedAnd_3_simplicity')
 """
 
 # Prepare the csv we'll be writing results to
-oFile = open('analysis1.csv','w')
+oFile = open('analysis2.csv','w')
 CSV = csv.writer(oFile)
-CSV.writerow(['Teacher #', 'Hypothesis Space', "Type", "Trial","Posterior"])
+CSV.writerow(['Teacher #', 'Hypothesis Space', "Type", "Trial","Action","Posterior"])
 # Run the analysis!!!!!!!!!
 
 lambda_noise = .05
@@ -97,28 +98,29 @@ for i in range(len(hSpaces)):
 	for j in range(len(teacherData)):
 
 		# Loop through all teacher's teaching sequences
-		for k in range(len(teacherData[j])):
+		for k in [len(teacherData[j])-1]:
 
 			# Recursive + Dependent 
 			infer = InferenceMachine(deepcopy(hSpaces[i]),['BE'],teacherData[j][0:(k+1)], lambda_noise)
 			hUpdater = HypothesisSpaceUpdater(deepcopy(hSpaces[i]),['BE'],teacherData[j][0:(k+1)],
 				infer.taggedActions, lambda_noise , False, 1)
 
-			# Get 'BE' index, record posterior in csv
-			ind = hUpdater.hypothesisSpace.index(['BE'])
-			CSV.writerow([j+1, hSpacesNames[i], 'Recursive_Dependent', k+1, 
-				hUpdater.hSpacePosterior[ind]])
-
+			for h in range(len(hUpdater.hypothesisSpace)):
+				# Get 'BE' index, record posterior in csv
+				CSV.writerow([j+1, hSpacesNames[i], 'Recursive_Dependent', k+1, hUpdater.hypothesisSpace[h], 
+					hUpdater.hSpacePosterior[h]])
+			"""
 			
 			# Recursive + Independent
 			infer = InferenceMachine(deepcopy(hSpaces[i]),['BE'],teacherData[j][0:(k+1)], lambda_noise)
 			hUpdater = HypothesisSpaceUpdater(deepcopy(hSpaces[i]),['BE'],teacherData[j][0:(k+1)],
 				infer.taggedActions, lambda_noise , True, 1)
 
-			# Get 'BE' index, record posterior in csv
-			ind = hUpdater.hypothesisSpace.index(['BE'])
-			CSV.writerow([j+1, hSpacesNames[i], 'Recursive_Independent', k+1, 
-				hUpdater.hSpacePosterior[ind]])
+			for h in range(len(hUpdater.hypothesisSpace)):
+				# Get 'BE' index, record posterior in csv
+				CSV.writerow([j+1, hSpacesNames[i], 'Recursive_Independent', k+1, hUpdater.hypothesisSpace[h],
+					hUpdater.hSpacePosterior[h]])
+			"""
 
 			"""
 			# Non-Recursive + Dependent
