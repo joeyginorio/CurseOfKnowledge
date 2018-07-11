@@ -131,6 +131,13 @@ class GenerateHypothesisSpace():
 
 		return [final_hyps, prior, arg]
 
+	def random_teacher(self, num_examples):
+
+		temp = self.depthSampler(1,uniform=True)
+		examples = temp[2]
+
+		return list(np.random.choice(examples,size=num_examples,replace=False))
+
 
 
 	def priorHelp(self, hypothesis):
