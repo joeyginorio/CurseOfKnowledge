@@ -8,6 +8,8 @@ import itertools
 import numpy as np
 from GenerateHypothesisSpace import GenerateHypothesisSpace
 from HypothesisSpaceUpdater import HypothesisSpaceUpdater
+from copy import deepcopy
+
 
 class InferenceMachine():
 	"""
@@ -170,13 +172,13 @@ class InferenceMachine():
 
 		for i in range(depth):
 
-			example, prob, posterior = self.bestExample(hypothesisSpace, trueHypothesis,\
+			example, prob, posterior = self.bestExample(deepcopy(hypothesisSpace), trueHypothesis,\
 								lambda_noise, independent, option, tau, types)
 			exampleList.append((example, prob))
 			hypothesisSpace[1] = posterior
 
 
-		return exampleList
+		return exampleList, posterior
 
 
 	def bestExample(self, hypothesisSpace, trueHypothesis, lambda_noise=.05,

@@ -138,6 +138,24 @@ class GenerateHypothesisSpace():
 
 		return list(np.random.choice(examples,size=num_examples,replace=False))
 
+	def permute_teacher(self, teacherData):
+
+		final_teacher_data = list()
+
+		if len(teacherData) < 8:
+			final_teacher_data = itertools.permutations(teacherData)
+			final_teacher_data = [list(i) for i in final_teacher_data]
+
+		else:
+			temp = list(itertools.permutations(teacherData))
+			idx = np.random.choice(len(temp), 10000, replace=False)
+			for i in idx:
+				final_teacher_data.append(temp[i])
+
+			final_teacher_data = [list(i) for i in final_teacher_data]
+
+		return final_teacher_data
+
 
 
 	def priorHelp(self, hypothesis):
