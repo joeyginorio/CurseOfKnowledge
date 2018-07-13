@@ -147,11 +147,14 @@ class GenerateHypothesisSpace():
 			final_teacher_data = [list(i) for i in final_teacher_data]
 
 		else:
-			temp = list(itertools.permutations(teacherData))
-			idx = np.random.choice(len(temp), 10000, replace=False)
-			for i in idx:
-				final_teacher_data.append(temp[i])
+			temp = teacherData
+			perms = set()
 
+			while len(perms) < 10000:
+				np.random.shuffle(temp)
+				perms.add(tuple(temp))
+
+			final_teacher_data = list(perms)
 			final_teacher_data = [list(i) for i in final_teacher_data]
 
 		return final_teacher_data
