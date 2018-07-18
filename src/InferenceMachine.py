@@ -9,6 +9,7 @@ import numpy as np
 from GenerateHypothesisSpace import GenerateHypothesisSpace
 from HypothesisSpaceUpdater import HypothesisSpaceUpdater
 from copy import deepcopy
+import operator
 
 
 class InferenceMachine():
@@ -151,6 +152,16 @@ class InferenceMachine():
 			self.addTypes(self.actionSpace, self.actionDistribution,self.actionDistribution[exampleIndex]),\
 			self.actionPosterior
 
+	def rankExamples(self, hypothesisSpace, trueHypothesis, teacherData, lambda_noise=.05,
+								 independent=True, option=0, tau=.1, types=False):
+		ranks = self.bestExamples(deepcopy(hypothesisSpace), trueHypothesis, depth=len(teacherData), independent=True, option=1)[2]
+
+		rankings = list()
+		for i in range(len(teacherData)):
+			rankings.append((teacherData[i], ranks[i][teacherData[i]]))
+
+		return rankings
+
 	
 	def bestExamples(self, hypothesisSpace, trueHypothesis, depth=5, lambda_noise=.05,
 								 independent=True, option=0, tau=.1, types=False):
@@ -169,17 +180,37 @@ class InferenceMachine():
 		"""
 
 		exampleList = list()
+		probList = list()
 
 		for i in range(depth):
 
-			example, prob, posterior = self.bestExample(deepcopy(hypothesisSpace), trueHypothesis,\
+			temp = self.bestExample(deepcopy(hypothesisSpace), trueHypothesis,\
 								lambda_noise, independent, option, tau, types)
+
+			example = temp[0]
+			prob = temp[1]
+			posterior = temp[2]
+			fullpost = temp[3]
+
 			exampleList.append((example, prob))
 			hypothesisSpace[1] = posterior
+			probList.append(fullpost)
+
+		return exampleList, posterior, probList
+
+	def rank_dict(self,x):
 
 
-		return exampleList, posterior
+		# first sort it by value
+		sorted_x = sorted(x.items(), key=operator.itemgetter(1), reverse=True)
+		# sorted_x = sorted_x.reverse()
+		sorted_x = [list(i) for i in sorted_x]
+		for i in range(len(sorted_x)):
+			sorted_x[i][1] = i+1
+			sorted_x[i][0] = sorted_x[i][0][0]
 
+
+		return dict(sorted_x)
 
 	def bestExample(self, hypothesisSpace, trueHypothesis, lambda_noise=.05,
 								 independent=True, option=0, tau=.1, types=False):
@@ -228,10 +259,10 @@ class InferenceMachine():
 		# Returns probability of example being taught out of all possible examples
 		if types == False:
 			return self.actionSpace[np.argmax(self.actionDistribution)], \
-			np.max(self.actionDistribution), self.actionPosterior
+			np.max(self.actionDistribution), self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution)))
 		else:
 			temp = self.maxTypes(self.actionSpace, self.actionDistribution)
-			return temp[0], temp, self.actionPosterior
+			return temp[0], temp, self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution)))
 
 
 
