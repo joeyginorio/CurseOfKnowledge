@@ -196,6 +196,9 @@ class InferenceMachine():
 			hypothesisSpace[1] = posterior
 			probList.append(fullpost)
 
+			# print example[0]
+			hypothesisSpace[2].remove(example[0])
+
 		return exampleList, posterior, probList
 
 	def rank_dict(self,x):
