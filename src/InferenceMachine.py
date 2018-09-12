@@ -201,7 +201,6 @@ class InferenceMachine():
 
     def rank_dict(self,x):
 
-
         # first sort it by value
         sorted_x = sorted(x.items(), key=operator.itemgetter(1), reverse=True)
         # sorted_x = sorted_x.reverse()
