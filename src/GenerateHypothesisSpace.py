@@ -41,7 +41,14 @@ class GenerateHypothesisSpace():
             hypotheses = itertools.chain(hypotheses, map(y, 
                                                 itertools.combinations('ABCDE',i)))
 
+
         hypotheses = args + list(hypotheses)
+
+        # rid of duplicates
+        hypotheses = [tuple(i) for i in hypotheses]
+        hypotheses = set(hypotheses)
+        hypotheses = list(hypotheses)
+        hypotheses = [list(i) for i in hypotheses]
 
         a = 0
         if uniform:
