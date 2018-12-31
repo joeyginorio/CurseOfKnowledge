@@ -155,9 +155,14 @@ class InferenceMachine():
     def rankExamples(self, hypothesisSpace, trueHypothesis, teacherData, lambda_noise=.05,
                                          independent=True, option=0, tau=.1, types=False):
             depth = len(teacherData)
-            ranks = self.bestExamples(deepcopy(hypothesisSpace), trueHypothesis, teacherData, depth, lambda_noise, independent,option, tau, types)[2]
+            ranks_t = self.bestExamples(deepcopy(hypothesisSpace), trueHypothesis, teacherData, depth, lambda_noise, independent,option, tau, types)
+            ranks = deepcopy(ranks_t[2])
+            ranks_probs = ranks_t[1]
+            evals = ranks_t[3]
             rankings = list()
-
+            temp = list()
+            temp2 = list()
+            temp3 = list()
             # print teacherData
             # print ranks[0]
             # print ranks[1]
@@ -166,14 +171,19 @@ class InferenceMachine():
 
             for i in range(len(teacherData)):
                 rankings.append((teacherData[i], ranks[i][teacherData[i]]))
+                temp.append((teacherData[i], ranks[i]))
+                temp2.append(ranks_probs[i])
+                temp3.append(evals[i])
 
-            return rankings
+            return rankings, temp, temp2, temp3
 
 
     def bestExamples(self, hypothesisSpace, trueHypothesis, teacherData='NONE', depth=5, lambda_noise=.05,independent=True, option=0, tau=.1, types=False):
 
         exampleList = list()
         probList = list()
+        postList = list()
+        valsList = list()
 
         if teacherData != 'NONE':
                 depth = len(teacherData)
@@ -193,11 +203,15 @@ class InferenceMachine():
             posterior = temp[2]
             fullpost = temp[3]
 
+            exvals = temp[4]
+
             exampleList.append((example, prob))
             hypothesisSpace[1] = posterior
             probList.append(fullpost)
+            postList.append(posterior)
+            valsList.append(exvals)
 
-        return exampleList, posterior, probList
+        return exampleList, postList, probList, valsList
 
     def rank_dict(self,x):
 
@@ -271,10 +285,10 @@ class InferenceMachine():
                 # Returns probability of example being taught out of all possible examples
                 if types == False:
                         return self.actionSpace[np.argmax(self.actionDistribution)], \
-                        np.max(self.actionDistribution), self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution)))
+                        np.max(self.actionDistribution), self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution))),dict(zip(self.actionSpace, self.actionDistribution))
                 else:
                         temp = self.maxTypes(self.actionSpace, self.actionDistribution)
-                        return temp[0], temp, self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution)))
+                        return temp[0], temp, self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution))),dict(zip(self.actionSpace, self.actionDistribution))
 
         else:
                 temp = deepcopy(self.actionSpace)
@@ -285,7 +299,7 @@ class InferenceMachine():
 
                 if types == False:
                         return self.actionSpace[ind], \
-                        self.actionDistribution[ind], self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution)))
+                        self.actionDistribution[ind], self.actionPosterior, self.rank_dict(dict(zip(self.actionSpace, self.actionDistribution))), dict(zip(self.actionSpace, self.actionDistribution))
  
 
 
