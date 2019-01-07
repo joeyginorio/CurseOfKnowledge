@@ -64,7 +64,7 @@ class GenerateHypothesisSpace():
 
         return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
 
-    def depthSampler(self, depth,uniform=True):
+    def depthSampler(self, depth, size, uniform=True):
         """
             Samples AND, OR hypotheses at several depths.
 
@@ -88,6 +88,7 @@ class GenerateHypothesisSpace():
         
         hypotheses = list(hypotheses)
 
+        hypotheses = [i for i in hypotheses if self.max_len(i) <= size]
         hypotheses = [i for i in hypotheses if self.total_len(i) <= depth]
 
 
@@ -495,3 +496,10 @@ class GenerateHypothesisSpace():
         for h in hyp:
             total += len(h)
         return total
+
+    def max_len(self, hyp):
+    	max_len = 0
+    	for h in hyp:
+    		if max_len < len(h):
+    			max_len = len(h)
+    	return max_len
