@@ -1,9 +1,15 @@
-# Rosie Aboody
 # Joey Velez-Ginorio
+# Rosie Aboody
+# Laurie R. Santos
 # Julian Jara-Ettinger
-# Curse of Knowledge Project
-# -----------------------------------------------------------------------------
+# -----------------------------
+# When teaching breaks down...
+# -----------------------------
 
+"""
+This script lets you track a learners posterior belief in different
+hypotheses and updates these beliefs according to the examples shown.
+"""
 
 import itertools
 from GenerateHypothesisSpace import GenerateHypothesisSpace

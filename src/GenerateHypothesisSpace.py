@@ -1,8 +1,14 @@
-# Rosie Aboody
 # Joey Velez-Ginorio
+# Rosie Aboody
+# Laurie R. Santos
 # Julian Jara-Ettinger
-# Curse of Knowledge Project
-# -----------------------------------------------------------------------------
+# -----------------------------
+# When teaching breaks down...
+# -----------------------------
+
+"""
+This script lets you define different hypothesis spaces. 
+"""
 
 import itertools
 import numpy as np
@@ -64,6 +70,7 @@ class GenerateHypothesisSpace():
 
         return [hypotheses, prior, [''.join(i) for i in self.unorderedArgs]]
 
+    
     def depthSampler(self, depth, size, uniform=True):
         """
             Samples AND, OR hypotheses at several depths.

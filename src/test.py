@@ -1,5 +1,6 @@
 # Joey Velez-Ginorio
 # Rosie Aboody
+# Laurie R. Santos
 # Julian Jara-Ettinger
 # -----------------------------
 # When teaching breaks down...

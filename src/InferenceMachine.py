@@ -1,8 +1,15 @@
-# Rosie Aboody
 # Joey Velez-Ginorio
+# Rosie Aboody
+# Laurie R. Santos
 # Julian Jara-Ettinger
-# Curse of Knowledge Project
-# -----------------------------------------------------------------------------
+# -----------------------------
+# When teaching breaks down...
+# -----------------------------
+
+"""
+This script has all the machinery for computing a posterior belief in examples
+for a learner. 
+"""
 
 import itertools
 import numpy as np
