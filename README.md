@@ -1,3 +1,3 @@
 # CurseOfKnowledgeV2
-Curse of Knowledge Project, v2
-- see src folder, testScript provided.
+When teaching breaks down: Teachers rationally select what information to share, 
+but misrepresent learners’ hypothesis spaces (Rosie Aboody, Joey Velez-Ginorio, Laurie R. Santos, Julian Jara-Ettinger)
