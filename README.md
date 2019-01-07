@@ -34,6 +34,7 @@ hUpdater = HypothesisSpaceUpdater(deepcopy(hSpace), th, teacherData,
 final_posterior = zip(hUpdater.hypothesisSpace, hUpdater.hSpacePosterior)
 print final_posterior
 ```
+If you run the above example in test.py, you should see that the learner is confident that the true hypothesis is 'BE'. 
 
 ### Reference
 *Aboody, R., Velez-Ginorio, J., Santos, L. R., & Jara-Ettinger, J. When teaching breaks down: Teachers rationally select what information to share, but misrepresent learners’ hypothesis spaces.*
